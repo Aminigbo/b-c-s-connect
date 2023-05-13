@@ -1,0 +1,6 @@
+export const INITIALIZED = "INITIALIZED" 
+export const CATEGORIES = "CATEGORIES" 
+export const CART = "CART" 
+export const ITEMS = "ITEMS" 
+export const SURPRISES = "SURPRISES"
+export const USER = "USER"
