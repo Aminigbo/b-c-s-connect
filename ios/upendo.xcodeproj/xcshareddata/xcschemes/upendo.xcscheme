@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "version18.app"
-               BlueprintName = "version18"
-               ReferencedContainer = "container:version18.xcodeproj">
+               BuildableName = "upendo.app"
+               BlueprintName = "upendo"
+               ReferencedContainer = "container:upendo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "version18Tests.xctest"
-               BlueprintName = "version18Tests"
-               ReferencedContainer = "container:version18.xcodeproj">
+               BuildableName = "upendoTests.xctest"
+               BlueprintName = "upendoTests"
+               ReferencedContainer = "container:upendo.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "version18.app"
-            BlueprintName = "version18"
-            ReferencedContainer = "container:version18.xcodeproj">
+            BuildableName = "upendo.app"
+            BlueprintName = "upendo"
+            ReferencedContainer = "container:upendo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "version18.app"
-            BlueprintName = "version18"
-            ReferencedContainer = "container:version18.xcodeproj">
+            BuildableName = "upendo.app"
+            BlueprintName = "upendo"
+            ReferencedContainer = "container:upendo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

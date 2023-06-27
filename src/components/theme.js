@@ -6,6 +6,6 @@ export function Color() {
         dark:"#1E1E24",
         black: "",
         white: "#ffffff",
-        primary:"#ED2239"
+        primary:"#660708"
     }
 }
