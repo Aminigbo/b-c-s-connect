@@ -15,6 +15,7 @@ import { Color } from './theme';
 import { Onboard, Onborded } from '../controllers/auth/authController';
 import Svg, { Path, Defs, Pattern, Use, Image, G } from "react-native-svg"
 import Web from '../screens/web';
+import Profile from '../user/screens/profile';
 
 
 const Colors = Color()
@@ -4731,12 +4732,12 @@ export default function Onbording({ navigation }) {
                 style={{ backgroundColor: Colors.light, flex: 1 }} >
                 <ScrollView >
                     <View style={{
-                        position: 'relative',
-                        height: height - 40,
+                        // position: 'relative',
+                        // height: height - 40,
 
                     }}>
-                        { isOnoarded == true && <Web /> }
-                        { isOnoarded == false &&  <Onboarding />  }
+                        {isOnoarded == true && <Profile />}
+                        {isOnoarded == false && <Onboarding />}
                         {/* */}
                     </View>
 
@@ -4765,7 +4766,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
         textAlign: 'center',
         marginHorizontal: 64,
-        color:Colors.primary
+        color: Colors.primary
     },
     image: {
         width: 250,

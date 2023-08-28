@@ -6,14 +6,26 @@ import {
     BackHandler,
     Platform,
     View,
-    Text
+    Text,
+    Alert
 } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { WebView } from 'react-native-webview';
 import Svg, { Path, Defs, Pattern, Use, Image } from "react-native-svg"
 import { Color } from '../components/theme';
+import PushNotification from "react-native-push-notification";
 
-export default function Web({ navigation, route }) {
+const Click = (data, webViewRef, run) => {
+    console.log(data.message)
+    // webViewRef.injectJavaScript(run)
+}
+
+
+
+
+function Web({ navigation, route }) {
+
+
 
     const webViewRef = useRef(null);
     const onAndroidBackPress = () => {
@@ -132,9 +144,51 @@ export default function Web({ navigation, route }) {
         </View>
     )
 
+    const run = `
+      document.body.style.backgroundColor = 'blue';
+      true;
+    `;
+
+    const Click = (data) => {
+        // console.log(data.message)
+        // webViewRef.injectJavaScript(run)
+        console.log(webViewRef)
+        const newURL = 'https://bcs-bethels.netlify.app/update';
+        webViewRef.current.injectJavaScript(`window.location = "https://bcs-bethels.netlify.app/notifications"; true; `)
+
+    }
+
+    PushNotification.configure({
+        // (required) Called when a remote is received or opened, or local notification is opened
+        onNotification: function (notification) {
+            // console.log("NOTIFICATION:", notification);
+            console.log("Notification caused app to open from background state")
+
+            if (notification.foreground) {
+                //Diplay the remote notification 
+                //This->do not work (loop and notification when app closes)
+                //PushNotification.localNotification({message:notification.message,details:{repeted:true}})
+                //Temporal solution
+                Alert.alert(notification.title, notification.message,
+                    [
+                        {
+                            text: "Close",
+                            onPress: () => { Click(notification,) }
+                        }
+                    ]
+                );
+            }
+        },
+
+        requestPermissions: Platform.OS === 'ios'
+    })
+
+
+
+
+
     return (
         <>
-
             <WebView
                 source={{ uri: 'https://bcs-bethels.netlify.app/' }}
                 ref={webViewRef}
@@ -155,7 +209,7 @@ export default function Web({ navigation, route }) {
                         <Error />
                         {/* <ActivityIndicator color={Colors.primary} /> */}
                         <Text style={{ color: "#DADADA", fontSize: 20, marginTop: 10 }} >
-                           No internet access
+                            No internet access
                         </Text>
                     </View>
                 )}
@@ -174,12 +228,12 @@ export default function Web({ navigation, route }) {
                     >
                         <SvgImg />
                         <ActivityIndicator color={Colors.primary} />
-                        {/* <Text style={{ color: Colors.primary, fontSize: 20, marginTop: 10 }} >
-                    Product of ABAS Rivers State
-                </Text> */}
                     </View>
                 )}
             />
+
         </>
     )
-} 
+}
+
+export default (Web)

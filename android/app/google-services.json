@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "746611112853",
+    "project_id": "upendo-da807",
+    "storage_bucket": "upendo-da807.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746611112853:android:c38fdd113987f23209949c",
+        "android_client_info": {
+          "package_name": "com.upendo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "746611112853-h31q603hi5sasv26vedcvp04ci5ua3s2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGutw0srocNABs33-hdUewVvxWa3vGOI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "746611112853-h31q603hi5sasv26vedcvp04ci5ua3s2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
