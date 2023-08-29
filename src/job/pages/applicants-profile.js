@@ -33,7 +33,7 @@ import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { FetchGifts } from '../../controllers/items/itemsControllers';
 // import { NoItems } from '../../utilities/404';
 import { PrimaryButton } from '../../components/buttons/primary';
-import { Style } from '../../../assets/styles'; 
+import { Style } from '../../../assets/styles';
 import { DonationCard } from '../../events/components/campaign-card';
 import { NotificationController } from '../models';
 import { FetchMetaData } from '../../auth/models/auth-models';
@@ -74,7 +74,8 @@ function JobApplicants({ route, appState, disp_events }) {
         // }
 
         // setData(ViewUser)
-        console.log(ViewUser.meta.phone)
+        // console.log(ViewUser.meta.phone)
+        console.log("parameter", route.params)
         FetchUserDetails(ViewUser.meta.phone.slice(-10))
 
         const handleBackButton = () => {
@@ -652,7 +653,7 @@ function JobApplicants({ route, appState, disp_events }) {
                                     </View>
 
 
-                                    <PrimaryButton callBack={() => { 
+                                    <PrimaryButton callBack={() => {
                                         handleSnapPress(1)
                                         setreportAccount(true)
                                     }}

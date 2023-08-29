@@ -1,4 +1,5 @@
-import { supabase } from "../../config/supabase"; 
+import { supabase } from "../../config/supabase";
+import { InviteToSupport } from "../../events/models";
 
 export function FetchAllUsers() {
     return supabase.from("abasites")
@@ -8,28 +9,16 @@ export function FetchAllUsers() {
 
 //  invite user to support campaign
 export function NotificationController(payload) {
-    console.log(payload.invitee.meta)
-    supabase
-        .from("notifications")
-        .insert({
-            user: payload.user.id,
-            invitee: payload.invitee.id,
-            meta: payload.meta,
-            type: payload.type,
+    console.log(payload)
 
-        })
-        .then(res => {
+    InviteToSupport(payload)
+        .then(response => {
+            if (response.success == true) {
+                payload.Alert.alert("Success", `You have successfully invited ${payload.invitee.name} to support ${payload.event.title}`)
+            } else {
+                payload.Alert.alert("Error", response.message)
+            }
             payload.setLoading(false)
-            payload.Alert.alert("Success", `You have successfully invited ${payload.invitee.name} to support ${payload.meta.campaign.meta.title}`)
-            // PushNotification({
-            //     name: payload.user.name,
-            //     message: `${payload.user.name} has invited you to support the ${payload.meta.campaign.meta.title} via the Upendo App`,
-            //     token: payload.invitee.meta.Fcmoken,
-            //     title: "Donation Campaign",
-            //     largeImg: `https://ddhqtepvmjgbfndcjrkn.supabase.co/storage/v1/object/public/${payload.user.img}`,
-            //     id:payload.meta.campaign.id,
-            //     type:"CAMPAIGN"
-            // })
         })
         .catch(error => {
             payload.setLoading(false)

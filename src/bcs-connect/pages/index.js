@@ -437,7 +437,7 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                                                 return (
                                                     <UserCard
                                                         action={() => {
-                                                            navigation.navigate("view-user", { e })
+                                                            navigation.navigate("User-Profile", { e })
                                                         }}
                                                         disp_viewUser={disp_viewUser}
                                                         data={e} Navigation={navigation} key={index} />

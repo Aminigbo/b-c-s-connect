@@ -5,7 +5,8 @@ import {
     Pressable,
     Dimensions, Alert,
     StatusBar,
-    Modal
+    Modal,
+    ActivityIndicator
 } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { Divider } from 'react-native-paper';
@@ -19,9 +20,10 @@ import { Color } from '../../components/theme';
 import { connect } from 'react-redux';
 import { Connect_user, user_state } from '../../redux';
 import { Style } from '../../../assets/styles';
-import { ApplyForJob } from '../models';
+import { ApplyForJob, GetSingleJob } from '../models';
 import { NumberWithCommas } from '../../utilities';
 import { UserCard } from '../../bcs-connect/components/user-cards';
+import { BackIcon } from '../../components/icons';
 
 const Colors = Color()
 
@@ -36,18 +38,38 @@ function ViewJob({ navigation, appState, route, disp_viewUser }) {
 
     useEffect(() => {
         if (route.params) {
-            setData(route.params.data)
+            let paramData = route.params
+            setLoading(true)
+            GetSingleJob(paramData.id)
+                .then(response => {
+                    if (response.success == true) {
+                        console.log(response)
+                        setData(response.data)
+                        setLoading(false)
+
+                        const Params = response.data.applications;
+                        let Check = Params.filter(e => e.email == User.meta.email)
+                        if (Check.length > 0) {
+                            setHaveApplied(true)
+                        } else {
+                            setHaveApplied(false)
+                        }
+
+                    } else {
+                        console.log(response)
+                        setLoading(false)
+
+                    }
+                })
+            // setData(route.params.data)
+            // console.log("param data ============= ",route.params.data)
+
         } else {
             console.log("No data")
         }
+        console.log("params=====", route.params)
 
-        const Params = route.params.data.applications;
-        let Check = Params.filter(e => e.email == User.meta.email)
-        if (Check.length > 0) {
-            setHaveApplied(true)
-        } else {
-            setHaveApplied(false)
-        }
+
 
 
         // console.log(HaveApplied)
@@ -140,306 +162,324 @@ function ViewJob({ navigation, appState, route, disp_viewUser }) {
 
         <>
 
-            <SafeAreaView style={styles.container}>
-                <StatusBar
-                    animated={true}
-                    backgroundColor={Colors.light}
-                    barStyle={statusBarStyle}
-                    showHideTransition={statusBarTransition}
-                    hidden={hidden}
-                />
-                <ScrollView>
-                    <View style={styles.content}>
-                        <View
-                            style={{
-                                width: "100%"
-                            }}
-                        >
-                            <View >
-                                <View
-                                    style={{
-                                        // backgroundColor:"#E1ECF4",
-                                        backgroundColor: Colors.light,
-                                        padding: 18,
-                                        // borderRadius: 10,
-                                        // marginTop: 20,
-                                        // marginBottom: 20,
-                                        borderRadius: 6,
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-around"
-                                    }}
-                                >
-                                    <Text
+
+            {loading == true ? <>
+                <View style={{
+                    marginTop: 23,
+                    position: "absolute",
+                    top: 1,
+                    zIndex: 2100,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignContent: "center",
+                    // backgroundColor:"red",
+                    width: "100%"
+                }} >
+                    <ActivityIndicator />
+                </View>
+            </> :
+                <SafeAreaView style={styles.container}>
+                    <StatusBar
+                        animated={true}
+                        backgroundColor={Colors.light}
+                        barStyle={statusBarStyle}
+                        showHideTransition={statusBarTransition}
+                        hidden={hidden}
+                    />
+                    <ScrollView>
+                        <View style={styles.content}>
+                            <View
+                                style={{
+                                    width: "100%",
+                                    padding:12
+                                }}
+                            >
+                                <View >
+                                    <View
                                         style={{
-                                            color: Colors.dark,
-                                            fontSize: 20,
-                                            // textAlign:"center",
-                                            fontWeight: 900,
-                                            flex: 9,
-                                            // backgroundColor:"red",
-                                            textAlign: "center"
-                                        }}>
-                                        {data && data.meta.title}
-                                    </Text>
-                                    <Pressable
-                                        onPress={() => { navigation.navigate("Select-fellowship") }}
-                                        style={{ flex: 1 }}
-                                    >
-                                        <FontAwesomeIcon size={16} style={{
-                                            flex: 1,
-                                            color: Colors.primary,
-                                            opacity: 0.8,
-                                            marginLeft: 10
-                                            // margin: 20,
+                                            // backgroundColor:"#E1ECF4",
+                                            // backgroundColor: Colors.light,
+                                            // padding: 18,
+                                            // borderRadius: 10,
+                                            marginTop: 20,
+                                            // marginBottom: 20,
+                                            borderRadius: 6,
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            justifyContent: "space-around"
                                         }}
-                                            icon={faBriefcase} />
-                                    </Pressable>
-                                </View>
-
-
-                                {/* <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} > */}
-                                {/* <Text style={{ color: Colors.grey, fontSize: 16 }}>
-                                        Recruiting company -
-                                    </Text> */}
-                                {/* <Text style={[Style.boldText]}>{data && data.meta.company}</Text> */}
-
-
-                                {data && data.meta.employerType == 'Me' && <>
-                                    <View style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        marginTop: 2
-                                    }} >
-                                        <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
-                                            Employer:
-
+                                    >
+                                        <Text
+                                            style={{
+                                                color: Colors.dark,
+                                                fontSize: 20,
+                                                // textAlign:"center",
+                                                fontWeight: 900,
+                                                flex: 9,
+                                                // backgroundColor:"red",
+                                                textAlign: "center"
+                                            }}>
+                                            {data && data.meta.title}
                                         </Text>
-                                        <TouchableOpacity onPress={() => {
-                                            console.log(data)
+                                        <Pressable
+                                            onPress={() => { navigation.navigate("Select-fellowship") }}
+                                            style={{ flex: 1 }}
+                                        >
+                                            <FontAwesomeIcon size={16} style={{
+                                                flex: 1,
+                                                color: Colors.primary,
+                                                opacity: 0.8,
+                                                marginLeft: 10
+                                                // margin: 20,
+                                            }}
+                                                icon={faBriefcase} />
+                                        </Pressable>
+                                    </View>
+
+
+                                    {/* <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} > */}
+                                    {/* <Text style={{ color: Colors.grey, fontSize: 16 }}>
+                                    Recruiting company -
+                                </Text> */}
+                                    {/* <Text style={[Style.boldText]}>{data && data.meta.company}</Text> */}
+
+
+                                    {data && data.meta.employerType == 'Me' && <>
+                                        <View style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                            marginTop: 2
                                         }} >
-                                            <Text style={[Style.TextLink, { fontSize: 16, }]}>
-                                                {data.poster}
+                                            <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
+                                                Employer:
 
                                             </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </>}
+                                            <TouchableOpacity onPress={() => {
+                                                console.log(data)
+                                            }} >
+                                                <Text style={[Style.TextLink, { fontSize: 16, }]}>
+                                                    {data.poster}
 
-                                {data && data.meta.employerType == 'Private Individual' && <>
-                                    <View style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        marginTop: 2
-                                    }} >
-                                        <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
-                                            Employer:
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </>}
 
+                                    {data && data.meta.employerType == 'Private Individual' && <>
+                                        <View style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                            marginTop: 2
+                                        }} >
+                                            <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
+                                                Employer:
+
+                                            </Text>
+                                            <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, }]}>
+                                                {data.meta.company}
+
+                                            </Text>
+                                        </View>
+                                    </>}
+                                    {data && data.meta.employerType == 'Registered Business' && <>
+                                        <View style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                            marginTop: 2
+                                        }} >
+
+                                            <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, }]}>
+                                                @ {data.meta.company}
+
+                                            </Text>
+                                        </View>
+                                    </>}
+
+
+
+
+
+                                    {/* </View> */}
+
+
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                        <Text style={{ color: Colors.grey, fontSize: 16 }}>
+                                            Job type -
                                         </Text>
-                                        <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, }]}>
-                                            {data.meta.company}
+                                        <Text style={[Style.boldText]}>{data && data.meta.jobtype} </Text>
 
-                                        </Text>
                                     </View>
-                                </>}
-                                {data && data.meta.employerType == 'Registered Business' && <>
-                                    <View style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        marginTop: 2
-                                    }} >
 
-                                        <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, }]}>
-                                            @ {data.meta.company}
-
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                        <Text style={{ color: Colors.grey, fontSize: 16 }}>
+                                            Work-place type -
                                         </Text>
+                                        <Text style={[Style.boldText]}>{data && data.meta.worktplaceype} </Text>
+
                                     </View>
-                                </>}
+
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                        <Text style={{ color: Colors.grey, fontSize: 16 }}>
+                                            Salary range -
+                                        </Text>
+                                        <Text style={[Style.boldText]}> ₦{data && NumberWithCommas(data.meta.salary)} </Text>
+
+                                    </View>
+
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                        <Text style={{ color: Colors.grey, fontSize: 16, }}>
+                                            Job location -
+                                        </Text>
+                                        <Text style={[Style.boldText]}> {data && data.meta.location} </Text>
+
+                                    </View>
+
+                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                        <Text style={{ color: Colors.grey, fontSize: 16, }}>
+                                            Application deadline -
+                                        </Text>
+                                        <Text style={[Style.boldText]}> {data && data.deadline}</Text>
+                                    </View>
 
 
 
-
-
-                                {/* </View> */}
-
-
-                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                    <Text style={{ color: Colors.grey, fontSize: 16 }}>
-                                        Job type -
+                                    <Text style={{ color: Colors.grey, fontSize: 16, marginTop: 30 }}>
+                                        Job description
                                     </Text>
-                                    <Text style={[Style.boldText]}>{data && data.meta.jobtype} </Text>
 
-                                </View>
-
-                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                    <Text style={{ color: Colors.grey, fontSize: 16 }}>
-                                        Work-place type -
+                                    <Text style={[Style.Text, { padding: 5 }]}>
+                                        {data && data.meta.description}
                                     </Text>
-                                    <Text style={[Style.boldText]}>{data && data.meta.worktplaceype} </Text>
-
-                                </View>
-
-                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                    <Text style={{ color: Colors.grey, fontSize: 16 }}>
-                                        Salary range -
-                                    </Text>
-                                    <Text style={[Style.boldText]}> ₦{data && NumberWithCommas(data.meta.salary)} </Text>
-
-                                </View>
-
-                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                    <Text style={{ color: Colors.grey, fontSize: 16, }}>
-                                        Job location -
-                                    </Text>
-                                    <Text style={[Style.boldText]}> {data && data.meta.location} </Text>
-
-                                </View>
-
-                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                    <Text style={{ color: Colors.grey, fontSize: 16, }}>
-                                        Application deadline -
-                                    </Text>
-                                    <Text style={[Style.boldText]}> {data && data.deadline}</Text>
                                 </View>
 
 
+                            </View>
 
-                                <Text style={{ color: Colors.grey, fontSize: 16, marginTop: 30 }}>
-                                    Job description
+                            {
+                                data && data.meta.poster_id == User.meta.email ?
+                                    <>
+                                        {
+                                            data && data.applications.length > 0 ?
+                                                <>
+
+                                                    <View style={{ width: "100%", marginTop: 30 }}>
+                                                        <View style={{
+                                                            // justifyContent: "flex-start",
+                                                            // alignItems: "flex-start",
+                                                            marginVertical: 10,
+                                                            marginHorizontal: 10
+                                                            // alignContent:"flex-start"
+                                                        }}>
+                                                            <Text style={{
+                                                                color: Colors.dark,
+                                                            }} >
+                                                                Application(s)
+                                                            </Text>
+                                                        </View>
+                                                        {data && data.applications.map((e, index) => {
+                                                            return (
+                                                                <View style={{ width: "100%" }} key={index} >
+                                                                    <UserCard
+                                                                        disp_viewUser={disp_viewUser}
+                                                                        data={e}
+                                                                        setModalVisible={setModalVisible}
+                                                                        // Navigation={navigation}
+                                                                        action={() => {
+                                                                            navigation.navigate("User-Profile")
+                                                                            console.log(e)
+                                                                        }}
+                                                                    />
+                                                                </View>
+                                                            )
+                                                        })}
+
+                                                    </View>
+                                                </> :
+                                                <>
+                                                    <Divider />
+                                                    <View style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
+                                                        <Text style={{ color: Colors.grey, fontSize: 16, }}>
+                                                            No application submitted yet
+                                                        </Text>
+                                                    </View>
+                                                </>
+                                        }
+                                    </>
+                                    :
+                                    <>
+                                        {HaveApplied == true ?
+                                            <>
+                                                <Divider />
+                                                <View style={{ margin: 40 }} >
+                                                    <Text style={{ color: Colors.dark }} >
+                                                        You already applied
+                                                    </Text>
+                                                </View>
+                                            </> :
+                                            <>
+                                                <PrimaryButton
+                                                    loading={loading}
+                                                    style={{
+                                                        width: "100%", textTransform: 'uppercase', marginBottom: 10,
+                                                        marginVertical: 30
+                                                    }}
+                                                    callBack={() => { handleSnapPress(1) }} title={`Proceed to apply`} />
+                                            </>
+                                        }
+                                    </>
+                            }
+
+                        </View>
+
+                    </ScrollView>
+                    <BottomSheet
+                        enablePanDownToClose
+                        ref={bottomSheetRef}
+                        index={-1}
+                        snapPoints={snapPoints}
+                        backdropComponent={renderBackdrop}
+                        onChange={handleSheetChanges}
+                    >
+
+                        <View style={styles.content}>
+                            <View style={{ width: "100%", justifyContent: "flex-start" }} >
+                                <Text style={[Style.BoldText2, { marginLeft: 20, color: Colors.dark }]}>Note,</Text>
+                                <Text style={{ marginLeft: 20, color: Colors.dark, marginTop: 20 }}>
+                                    Your basic information will be shared with the recruiter for further assessment.
                                 </Text>
 
-                                <Text style={[Style.Text, { padding: 5 }]}>
-                                    {data && data.meta.description}
+                                <Text style={{ marginLeft: 20, color: Colors.dark, marginTop: 20, marginRight: 10 }}>
+
+                                    If your profile is not up to date, kindly update your profile before you proceed
                                 </Text>
                             </View>
 
 
+
+
+
+                            {HaveApplied == true ?
+                                <></> :
+                                <>
+                                    <PrimaryButton style={{
+                                        // width: "90%",
+                                        // marginLeft: "5%",
+                                        textTransform: 'uppercase', marginBottom: 30
+
+                                    }}
+                                        loading={loading}
+                                        callBack={() => {
+                                            proceedToApply()
+                                        }} title={`Send application`} />
+                                </>}
                         </View>
 
-                        {
-                            data && data.meta.poster_id == User.meta.email ?
-                                <>
-                                    {
-                                        data && data.applications.length > 0 ?
-                                            <>
-
-                                                <View style={{ width: "100%", marginTop: 30 }}>
-                                                    <View style={{
-                                                        // justifyContent: "flex-start",
-                                                        // alignItems: "flex-start",
-                                                        marginVertical: 10,
-                                                        marginHorizontal: 10
-                                                        // alignContent:"flex-start"
-                                                    }}>
-                                                        <Text style={{
-                                                            color: Colors.dark,
-                                                        }} >
-                                                            Application(s)
-                                                        </Text>
-                                                    </View>
-                                                    {data && data.applications.map((e, index) => {
-                                                        return (
-                                                            <View style={{ width: "100%" }} key={index} >
-                                                                <UserCard
-                                                                    disp_viewUser={disp_viewUser}
-                                                                    data={e}
-                                                                    setModalVisible={setModalVisible}
-                                                                    // Navigation={navigation}
-                                                                    action={() => {
-                                                                        navigation.navigate("Applicants")
-                                                                        console.log(e)
-                                                                    }}
-                                                                />
-                                                            </View>
-                                                        )
-                                                    })}
-
-                                                </View>
-                                            </> :
-                                            <>
-                                                <Divider />
-                                                <View style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", marginTop: 30, padding: 5 }} >
-                                                    <Text style={{ color: Colors.grey, fontSize: 16, }}>
-                                                        No application submitted yet
-                                                    </Text>
-                                                </View>
-                                            </>
-                                    }
-                                </>
-                                :
-                                <>
-                                    {HaveApplied == true ?
-                                        <>
-                                            <Divider />
-                                            <View style={{ margin: 40 }} >
-                                                <Text style={{ color: Colors.dark }} >
-                                                    You already applied
-                                                </Text>
-                                            </View>
-                                        </> :
-                                        <>
-                                            <PrimaryButton
-                                                loading={loading}
-                                                style={{
-                                                    width: "100%", textTransform: 'uppercase', marginBottom: 10,
-                                                    marginVertical: 30
-                                                }}
-                                                callBack={() => { handleSnapPress(1) }} title={`Proceed to apply`} />
-                                        </>
-                                    }
-                                </>
-                        }
-
-                    </View>
-
-                </ScrollView>
-                <BottomSheet
-                    enablePanDownToClose
-                    ref={bottomSheetRef}
-                    index={-1}
-                    snapPoints={snapPoints}
-                    backdropComponent={renderBackdrop}
-                    onChange={handleSheetChanges}
-                >
-
-                    <View style={styles.content}>
-                        <View style={{ width: "100%", justifyContent: "flex-start" }} >
-                            <Text style={[Style.BoldText2, { marginLeft: 20, color: Colors.dark }]}>Note,</Text>
-                            <Text style={{ marginLeft: 20, color: Colors.dark, marginTop: 20 }}>
-                                Your basic information will be shared with the recruiter for further assessment.
-                            </Text>
-
-                            <Text style={{ marginLeft: 20, color: Colors.dark, marginTop: 20, marginRight: 10 }}>
-
-                                If your profile is not up to date, kindly update your profile before you proceed
-                            </Text>
-                        </View>
-
-
-
-
-
-                        {HaveApplied == true ?
-                            <></> :
-                            <>
-                                <PrimaryButton style={{
-                                    // width: "90%",
-                                    // marginLeft: "5%",
-                                    textTransform: 'uppercase', marginBottom: 30
-
-                                }}
-                                    loading={loading}
-                                    callBack={() => {
-                                        proceedToApply()
-                                    }} title={`Send application`} />
-                            </>}
-                    </View>
-
-                </BottomSheet>
-            </SafeAreaView>
+                    </BottomSheet>
+                </SafeAreaView>
+            }
         </>
 
     );
@@ -505,7 +545,7 @@ const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: 'center',
         // alignItems: 'center',
-        padding: 10,
+        // padding: 10,
         // backgroundColor:"red", 
     },
 });

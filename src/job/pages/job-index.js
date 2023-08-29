@@ -86,7 +86,7 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
             FetchAllJobs()
                 .then(response => {
                     setLoading(false)
-                    console.log(response)
+                    // console.log(response)
                     if (response.success == true) {
                         disp_Jobs(response.data)
                         setModalVisible(false)
@@ -255,8 +255,9 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
             <>
                 <SafeAreaView style={
                     {
-                        // backgroundColor: 'red',
-                        marginTop: 50
+                        backgroundColor: Colors.light,
+                        marginTop: 50,
+                        flex: 1
                     }
                 }>
                     <StatusBar
@@ -267,7 +268,6 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                         hidden={hidden}
                     />
                     <ScrollView>
-
                         {
                             Jobs.length > 0 ?
                                 <>
@@ -673,13 +673,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
 
+
     },
     content: {
-        flex: 1,
+        // flex: 1,
         justifyContent: 'space-between',
         alignItems: 'center',
         // marginTop: 65,
-        // backgroundColor: "red"
+        // backgroundColor: "red",
         marginTop: 20,
         paddingHorizontal: 19
     },
@@ -690,7 +691,7 @@ const styles = StyleSheet.create({
     },
 
     container: {
-        flex: 1,
+        // flex: 1,
         // justifyContent: 'center',
         // alignItems: 'center',
         // padding: 20,
@@ -699,7 +700,7 @@ const styles = StyleSheet.create({
 
     // =========================
     centeredView: {
-        flex: 1,
+        // flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         // marginTop: 22,

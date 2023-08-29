@@ -14,8 +14,8 @@ export function CampaignCard({
     return (
         <Pressable
             onPress={() => {
-                navigation.navigate("View-job", { data })
-                console.log(data)
+                navigation.navigate("View-job", {id:data.id })
+                
             }}
             style={styles.container} >
             <View style={{

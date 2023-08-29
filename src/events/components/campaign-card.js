@@ -4,7 +4,7 @@ import { Color } from '../../components/theme';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBandage, faCheckCircle, faCheckDouble, faDonate, faGroupArrowsRotate, faIdBadge, faRotate } from '@fortawesome/free-solid-svg-icons';
 import { Style } from '../../../assets/styles';
-import { Avatar, Divider } from 'react-native-paper'; 
+import { Avatar, Divider } from 'react-native-paper';
 import { ImgBaseUrl, NumberWithCommas } from '../../utilities';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { BoldText2, BoldText3 } from '../../components/text';
@@ -12,7 +12,7 @@ import { getTotalAmount } from './view-campaign-card';
 
 const Colors = Color()
 export function DonationCard({
-    Navigation,
+    navigation,
     data,
     setModalVisible,
     setdateToView,
@@ -61,31 +61,35 @@ export function DonationCard({
                         onPress={() => {
                             // Navigation.navigate("view-user")
                             if (setdateToView) {
-                                setdateToView({
-                                    type: "VIEW MORE",
-                                    data: data
-                                })
-                                setModalVisible(true)
+                                // setdateToView({
+                                //     type: "VIEW MORE",
+                                //     data: data
+                                // })
+                                // setModalVisible(true)
+                                navigation.navigate("View-event", { id: data.id })
+                            } else {
+                                // When user wants to invite other to support a campaign
+                                if (Alert) {
+                                    Alert.alert("Proceed", `${user} will be invited to support ${data.meta.title}`, [
+                                        {
+                                            text: "Cancel"
+                                        },
+                                        {
+                                            text: "Invite", onPress: () => {
+                                                AlertCallback()
+                                            }
+                                        }
+                                    ])
+                                }
+
                             }
 
-                            // When user wants to invite other to support a campaign
-                            if (Alert) {
-                                Alert.alert("Proceed", `${user} will be invited to support ${data.meta.title}`, [
-                                    {
-                                        text: "Cancel"
-                                    },
-                                    {
-                                        text: "Invite", onPress: () => {
-                                            AlertCallback()
-                                        }
-                                    }
-                                ])
-                            }
+
                         }}
                         style={[Style.Text, { marginTop: 5, }]}>
 
                         <BoldText2
-                        color="black"
+                            color="black"
                             text={data && data.meta.title}
                         />
 
@@ -101,28 +105,30 @@ export function DonationCard({
                         data && data.meta.Img &&
                         <Pressable
                             onPress={() => {
-                                // Navigation.navigate("view-user")
                                 if (setdateToView) {
-                                    setdateToView({
-                                        type: "IMAGE",
-                                        data: data
-                                    })
-                                    setModalVisible(true)
+                                    navigation.navigate("View-event", { id: data.id })
+                                    // setdateToView({
+                                    //     type: "IMAGE",
+                                    //     data: data
+                                    // })
+                                    // setModalVisible(true)
+                                } else {
+
+                                    // When user wants to invite other to support a campaign
+                                    if (Alert) {
+                                        Alert.alert("Proceed", `${user} will be invited to support ${data.meta.title}`, [
+                                            {
+                                                text: "Cancel"
+                                            },
+                                            {
+                                                text: "Invite", onPress: () => {
+                                                    AlertCallback()
+                                                }
+                                            }
+                                        ])
+                                    }
                                 }
 
-                                // When user wants to invite other to support a campaign
-                                if (Alert) {
-                                    Alert.alert("Proceed", `${user} will be invited to support ${data.meta.title}`, [
-                                        {
-                                            text: "Cancel"
-                                        },
-                                        {
-                                            text: "Invite", onPress: () => {
-                                                AlertCallback()
-                                            }
-                                        }
-                                    ])
-                                }
 
                             }}
                             style={{

@@ -11,10 +11,10 @@ export function HandleFPN(navigation) {
 
 
     messaging().onNotificationOpenedApp(remoteMessage => {
-        console.log(
-            'Notification caused app to open from background state:',
-            remoteMessage.notification,
-        );
+        // console.log(
+        //     'Notification caused app to open from background state:',
+        //     remoteMessage.notification,
+        // );
 
     });
 
@@ -52,8 +52,20 @@ export function HandleFPN(navigation) {
             const clickedNotification = notification;
             if (clicked) {
                 // ToastAndroid.show(notification.message, ToastAndroid.CENTER);
-                console.log("Clicked notificationXX", clickedNotification)
-                navigation.navigate('Jobs');
+                const notificationTypeSplit = clickedNotification.data.id.split(":")
+
+                let notificationType = notificationTypeSplit[0]
+                let notificationID = notificationTypeSplit[1]
+                // =======================
+
+                if (notificationType == "JOB") { navigation.navigate("View-job", { id: notificationID }) } // view job
+
+                if (notificationType == "EVENT") { navigation.navigate("View-event", { id: notificationID }) } // view event
+
+                console.log("Notification type", notificationType)
+                console.log("id", notificationID)
+
+
             } else {
                 if (notification.foreground == true) {
                     console.log("Recieved notification in foregroundr")
@@ -73,6 +85,7 @@ export function HandleFPN(navigation) {
                         // actions: ['Accept', 'Reject'],
                     })
                 } else {
+                    console.log("Recieved notification in background")
                     PushNotification.localNotification({
                         // largeIcon: "ic_launcher",
                         largeIconUrl: notification.data.largeImg,

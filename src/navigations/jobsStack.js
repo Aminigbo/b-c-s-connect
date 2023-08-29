@@ -14,6 +14,8 @@ import Job from "../job/pages/job-index"
 import JobApplicants from "../job/pages/applicants-profile"
 import ViewJobs from '../job/pages/view-jobs';
 import { Color } from '../components/theme';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { BackIcon } from '../components/icons';
 
 
 const headerColor = '#fffdfb'
@@ -79,12 +81,13 @@ export default function JobStack({ appState }) {
                 title: "Active jobs",
                 headerStyle: {
                     backgroundColor: Colors.light
-                }
+                },
+               
             }} />
 
             {/* QR=============== */}
             <Stack.Screen name='View-job' component={ViewJobs} options={{
-                title: "Apply",
+                title: "",
                 headerStyle: {
                     backgroundColor: Colors.light
                 }

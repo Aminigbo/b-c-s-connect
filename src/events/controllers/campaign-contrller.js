@@ -3,6 +3,7 @@ import { CreateEventModel, FetchAllDonations, MakeDonationModel } from "../model
 import { supabase } from "../../config/supabase";
 import { NumberWithCommas } from "../../utilities";
 
+
 export const GetApp_Campaigns = ({
     setData,
     setLoading,
@@ -76,6 +77,7 @@ export const GetApp_Campaigns = ({
             setLoading(false)
         })
 }
+
 
 export function CreateEventController({
     createdata,
@@ -185,12 +187,12 @@ export function CreateEventController({
 
 }
 
+
 export function MakeDonationController(payload) {
 
 
     MakeDonationModel(payload)
-        .then(resonse => {
-            console.log(resonse)
+        .then(response => {
             if (response.success == true) {
                 payload.GetApp_Campaigns({
                     setLoading: payload.setLoading,
@@ -206,6 +208,7 @@ export function MakeDonationController(payload) {
                     }
                 ])
             } else {
+                payload.setLoading(false)
                 payload.Alert.alert("Error", response.message, [
                     {
                         text: "Ok",

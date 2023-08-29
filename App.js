@@ -12,7 +12,7 @@ import itemStack from './src/navigations/itemStack';
 import { Color } from './src/components/theme';
 import onAuthStateChange from './src/controllers/auth/onAuthStateChange';
 import SplashScreen from 'react-native-splash-screen';
-import { RequestUserPermission } from './src/utilities/fcntoken'; 
+import { RequestUserPermission } from './src/utilities/fcntoken';
 import financeStack from './src/navigations/financeStack';
 import BCSconnectStack from './src/navigations/bcs-connectStack';
 import JobStack from './src/navigations/jobsStack';
@@ -20,9 +20,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBookAtlas, faBriefcase, faDonate, faFeed, faHome, faHomeAlt, faLocation, faMapLocation, faMapMarkedAlt, faMapMarker, faMapMarkerAlt, faMarker, faMoneyBill, faPeopleArrows, faSearchLocation, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { Text, TouchableOpacity, View } from 'react-native';
 import AuthStack from './src/navigations/authStack';
-import BCSEventStack from "./src/navigations/enevtStack" 
+import BCSEventStack from "./src/navigations/enevtStack"
 import ProfileStack from './src/navigations/profileStack';
-import BethelFinderStack from './src/navigations/bethelFinderStack'; 
+import BethelFinderStack from './src/navigations/bethelFinderStack';
+import viewJobs from './src/job/pages/view-jobs';
+import View_event from "./src/events/pages/view-event"
+import jobApplicants from './src/job/pages/applicants-profile';
+import ViewProfile from "./src/bcs-connect/pages/user-profile"
 const headerColor = '#fffdfb'
 const navTheme = DefaultTheme;
 
@@ -39,11 +43,11 @@ function App() {
 
   useEffect(() => {
     SplashScreen.hide();
-    RequestUserPermission() 
-   
+    RequestUserPermission()
+
   }, [])
 
- 
+
 
 
 
@@ -228,7 +232,7 @@ function App() {
   }
 
   return (
-    <> 
+    <>
       <Provider store={store().store}>
         <PersistGate loading={null} persistor={store().persistor}>
           <NavigationContainer theme={navTheme}  >
@@ -246,8 +250,21 @@ function App() {
             >
               <Stack.Screen name="Accounts" component={HomeStacks} options={{ header: () => null }} />
               <Stack.Screen name="Auth" component={AuthStack} options={{ header: () => null, }} />
-              <Stack.Screen name="Finance" component={financeStack} options={{ header: () => null }} /> 
+              <Stack.Screen name="Finance" component={financeStack} options={{ header: () => null }} />
               <Stack.Screen name="Profile" component={ProfileStack} options={{ header: () => null }} />
+              <Stack.Screen name="User-Profile" component={ViewProfile} options={{ header: () => null }} />
+              <Stack.Screen name="View-event" component={View_event} options={{
+                title: "",
+                headerStyle: {
+                  backgroundColor: Colors.light
+                }
+              }} />
+              <Stack.Screen name="View-job" component={viewJobs} options={{
+                title: "",
+                headerStyle: {
+                  backgroundColor: Colors.light
+                }
+              }} />
 
             </Stack.Navigator>
           </NavigationContainer>

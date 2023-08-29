@@ -40,7 +40,7 @@ export function AddJobsController(data) {
         "User": {
             "name": data.poster,
             "email": data.poster_id,
-            "ID":data.posterID
+            "ID": data.posterID
         }
     });
 
@@ -88,3 +88,19 @@ export function ApplyForJob(payload) {
         .catch(error => console.log('error', error));
 }
 
+
+export async function GetSingleJob(id) {
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch(`${API_Base_URL}jobs/single/${id}`, requestOptions);
+        const result_1 = await response.text();
+        let data = JSON.parse(result_1);
+        return data
+    } catch (error) {
+        return error
+    }
+}

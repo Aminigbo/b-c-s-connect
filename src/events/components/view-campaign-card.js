@@ -102,7 +102,7 @@ export function ViewCampaignCard({
             })
     }
 
-    
+
     const handleSuccess = (ref) => {
         setLoading(true)
 
@@ -110,7 +110,7 @@ export function ViewCampaignCard({
             user: {
                 name: User.name,
                 email: User.meta.email,
-                phone: User.meta.phone
+                phone: User.phone.slice(-10)
             },
             payref: ref,
             amount,
@@ -276,16 +276,21 @@ export function ViewCampaignCard({
                                 // height: 300,
                                 // backgroundColor: "green"
                             }}>
-                                <Image
-                                    style={[styles.imageBackground, {
-                                        width: "100%",
-                                        // height: "100%",
-                                        aspectRatio: data.meta.Img.width / data.meta.Img.height,
-                                        marginTop: 10,
-                                        borderRadius: 2,
-                                    }]}
-                                    src={`${ImgBaseUrl}/${data.meta.Img.uri}`}
-                                    resizeMode={'cover'} />
+                                <Pressable onPress={() => {
+                                    setModalVisible(true)
+                                }} >
+                                    <Image
+                                        style={[styles.imageBackground, {
+                                            width: "100%",
+                                            // height: "100%",
+                                            aspectRatio: data.meta.Img.width / data.meta.Img.height,
+                                            marginTop: 10,
+                                            borderRadius: 2,
+                                        }]}
+                                        src={`${ImgBaseUrl}/${data.meta.Img.uri}`}
+                                        resizeMode={'cover'} />
+                                </Pressable>
+
                             </View>
                         }
 
