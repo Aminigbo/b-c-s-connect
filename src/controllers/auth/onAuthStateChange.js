@@ -24,5 +24,3 @@ function onAuthStateChange() {
 
 
 export default onAuthStateChange
-
-

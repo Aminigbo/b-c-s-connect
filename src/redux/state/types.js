@@ -12,3 +12,4 @@ export const EVENTS = "EVENTS"
 export const FELLOWSHIPTOPAY = "FELLOWSHIPTOPAY"
 export const STATE = "STATE"
 export const CONNECT_USER = "CONNECT_USER" //  user to connect withh
+export const LOCATION = "LOCATION" // user current location

@@ -3,8 +3,7 @@ import { DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator, TransitionSpecs } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Onbording from '../components/onboarding';
-import { Onborded } from '../controllers/auth/authController';
+import Onbording from '../components/onboarding'; 
 import Web from '../screens/web';
 import ViewProfile from "../bcs-connect/pages/user-profile"
 
@@ -55,13 +54,7 @@ export default function BCSEventStack({ appState }) {
 
     const [isOnoarded, setOnboarded] = useState()
 
-    Onborded().then(res => {
-        if (res == 1) {
-            setOnboarded(true)
-        } else {
-            setOnboarded(false)
-        }
-    })
+   
 
     const Colors = Color()
     return (

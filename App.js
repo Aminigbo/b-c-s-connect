@@ -7,10 +7,8 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useState, useEffect } from 'react'
-import itemStack from './src/navigations/itemStack';
-import { Color } from './src/components/theme';
-import onAuthStateChange from './src/controllers/auth/onAuthStateChange';
+import { useState, useEffect } from 'react' 
+import { Color } from './src/components/theme'; 
 import SplashScreen from 'react-native-splash-screen';
 import { RequestUserPermission } from './src/utilities/fcntoken';
 import financeStack from './src/navigations/financeStack';
@@ -27,6 +25,7 @@ import viewJobs from './src/job/pages/view-jobs';
 import View_event from "./src/events/pages/view-event"
 import jobApplicants from './src/job/pages/applicants-profile';
 import ViewProfile from "./src/bcs-connect/pages/user-profile"
+import { CustomMarker, CustomMarkerAlt } from './src/components/icons';
 const headerColor = '#fffdfb'
 const navTheme = DefaultTheme;
 
@@ -114,43 +113,71 @@ function App() {
                 {label}
               </Text> */}
 
-              {label == "Account" && <FontAwesomeIcon style={{
-                flex: 1,
-                color: isFocused ? Colors.primary : 'grey',
-                marginLeft: 10,
-                padding: 10,
+              {label == "Account" && <>
+                <View style={{
+                  alignItems: "center"
+                }} >
+                  <FontAwesomeIcon style={{
+                    flex: 1,
+                    color: isFocused ? Colors.primary : 'grey',
+                    // marginLeft: 10,
+                    padding: 10,
 
 
-                // }} size={20} icon={faMapMarkerAlt} />}
-              }} size={20} icon={faHome} />}
+                    // }} size={20} icon={faMapMarkerAlt} />}
+                  }} size={20} icon={faHome} /> 
+                  <Text>Find Bethel</Text>
+                </View>
+              </>}
 
-              {label == "BCS-Connect" && <FontAwesomeIcon style={{
-                flex: 1,
-                color: isFocused ? Colors.primary : 'grey',
-                marginLeft: 10,
-                padding: 10,
-
-
-              }} size={20} icon={faUserGroup} />}
-              {label == "Jobs" && <FontAwesomeIcon style={{
-                flex: 1,
-                color: isFocused ? Colors.primary : 'grey',
-                marginLeft: 10,
-                padding: 10,
-
-
-              }} size={20} icon={faBriefcase} />}
-              {label == "BCS-Events" && <FontAwesomeIcon style={{
-                flex: 1,
-                color: isFocused ? Colors.primary : 'grey',
-                marginLeft: 10,
-                padding: 10,
+              {label == "BCS-Connect" &&
+                <View style={{
+                  alignItems: "center"
+                }} >
+                  <FontAwesomeIcon style={{
+                    flex: 1,
+                    color: isFocused ? Colors.primary : 'grey',
+                    // marginLeft: 10,
+                    padding: 10,
 
 
-              }} size={20}
-                icon={faDonate}
-              // icon={faFeed}
-              />}
+                    // }} size={20} icon={faMapMarkerAlt} />}
+                  }} size={20} icon={faUserGroup} />
+                  <Text>Donations</Text>
+                </View>
+              }
+
+              {label == "Jobs" &&
+                <View style={{
+                  alignItems: "center"
+                }} >
+                  <FontAwesomeIcon style={{
+                    flex: 1,
+                    color: isFocused ? Colors.primary : 'grey',
+                    // marginLeft: 10,
+                    padding: 10,
+
+
+                    // }} size={20} icon={faMapMarkerAlt} />}
+                  }} size={20} icon={faBriefcase} />
+                  <Text>Jobs</Text>
+                </View>
+              }
+              {label == "BCS-Events" &&
+                <View style={{
+                  alignItems: "center"
+                }} >
+                  <FontAwesomeIcon style={{
+                    flex: 1,
+                    color: isFocused ? Colors.primary : 'grey',
+                    // marginLeft: 10,
+                    padding: 10,
+
+
+                    // }} size={20} icon={faMapMarkerAlt} />}
+                  }} size={20} icon={faDonate} />
+                  <Text>Donations</Text>
+                </View>}
               {label == "Finance" && <FontAwesomeIcon style={{
                 flex: 1,
                 color: isFocused ? Colors.primary : 'grey',

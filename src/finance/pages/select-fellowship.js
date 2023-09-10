@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAdd, faAngleUp, faAngleLeft, faAngleRight, faBasketShopping, faCheck, faCheckDouble, faGifts, faLocationDot, faTree, faTreeCity, faTvAlt, faVideo, faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faUser, faCheckSquare, faUserAlt, faGlobeAfrica, faPhoneAlt, faMessage, faEnvelope, faDotCircle, faBriefcase, faPeopleArrows, faMoneyBill, faQrcode }
     from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isAuth } from '../../controllers/auth/authController';
+// import { isAuth } from '../../controllers/auth/authController';
 import { Color } from '../../components/theme';
 import { Loader } from '../../components/loader';
 import { BackIcon, CartIcon, HomeIcon, OpenDrawer } from '../../components/icons';
@@ -46,11 +46,11 @@ function FinanceHistory({ route, appState, disp_Fell_to_pay }) {
     const navigation = useNavigation();
     const GetUser = () => {
         if (User == undefined) {
-            isAuth().then(res => {
-                console.log(res)
-                if (res == false) return navigation.pop()
-                setUserState(res)
-            })
+            // isAuth().then(res => {
+            //     console.log(res)
+            //     if (res == false) return navigation.pop()
+            //     setUserState(res)
+            // })
         } else {
             setUserState(User)
         }

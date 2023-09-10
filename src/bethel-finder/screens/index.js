@@ -10,18 +10,19 @@ import {
     Image,
     Linking,
     TouchableOpacity,
-    BackHandler
+    BackHandler,
+    ScrollView
 } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextInput } from 'react-native-paper';
+import { Divider, TextInput } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChurch, faHouse, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
-import { AccountIcon, OpenDrawer } from '../../components/icons';
+import { faChurch, faClose, faHouse, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
+import { AccountIcon, CustomMarker, OpenDrawer } from '../../components/icons';
 import { Color } from '../../components/theme';
 import { connect } from 'react-redux';
-import { surprise_state, user_state, logoutUser } from '../../redux';
+import { surprise_state, user_state, logoutUser, MyLocation } from '../../redux';
 import { Style } from '../../../assets/styles';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapView, { AnimatedRegion, Animated, Circle, Polyline } from 'react-native-maps';
@@ -30,12 +31,15 @@ import { Callout } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
-import { PrimaryButton } from '../../components/buttons/primary';
+import { PillButton, PrimaryButton } from '../../components/buttons/primary';
 import Autocomplete from 'react-native-autocomplete-input';
 import { EmptyData } from '../../events/components/empty-display';
 import { FetchStateData } from '../models';
 
 import { HandleFPN } from '../../services/handleFPN';
+import { BoldText2, BoldText3 } from '../../components/text';
+import { RequestLocationPermission, WatchLocationChange } from '../../utilities/getLocation';
+import { GetAllBethel, LocationPermission } from '../controllers';
 
 const Colors = Color()
 
@@ -44,13 +48,20 @@ const Colors = Color()
 
 
 
-function Add_details({ navigation, disp_logout, appState }) {
+function Add_details({ navigation, disp_logout, appState, dispLocation }) {
     // navigator.geolocation = require('@react-native-community/geolocation');
     const mapRef = useRef(null);
-    const User = appState.User
+    const markerRef = useRef(null)
+    const User = appState.User;
+    const myCurrentLocation = appState.myLocation;
     const [latLng, setLatLng] = useState();
     const [drawerState, setdrawerState] = useState(0)
     const APIKEY = 'AIzaSyC2jZWqEdoJyi_0glJCZLOJ9NslccFwKI0'
+    const GOOGLE_MAPS_APIKEY = APIKEY;
+
+
+    const [filteredData, setFilteredData] = useState([]);
+    const [wordEntered, setWordEntered] = useState("");
     const [currentLocation, setCurrentLocation] = useState(null);
     const [delta, setDelta] = useState({
         latitudeDelta: 0.08,
@@ -66,6 +77,7 @@ function Add_details({ navigation, disp_logout, appState }) {
     const [bethelData, setbethelData] = useState(null);
     const [drawRoute, setdrawRoute] = useState(false);
     const [FechBethels, setFechBethels] = useState([])
+    const [routeLoading, setrouteLoading] = useState(false)
     const handleRotateMap = (data) => {
         if (mapRef.current) {
             // console.log(mapRef.current.getCamera())
@@ -105,101 +117,13 @@ function Add_details({ navigation, disp_logout, appState }) {
             //     type: "Network error",
             //     status: true
             // })
-            // console.error('Error fetching street address:', error);
+            console.error('Error fetching street address:', error);
         }
     };
 
-    // function to the current user's address
-    // const fetchStreetAddress = async (latitude, longitude) => {
-    //     try {
-    //         const response = await fetch(
-    //             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${APIKEY}`
-    //         );
-    //         if (response.ok) {
-    //             const data = await response.json();
-    //             console.log(data)
-    //             if (data.results.length > 0) {
-    //                 const streetAddress = data.results[0].formatted_address;
-    //                 console.log('Street Address:', streetAddress);
-    //             }
-    //         } else {
-    //             console.error('Error fetching street address:', response.status);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching street address:', error);
-    //     }
-    // };
-
-    const requestLocationPermission = async () => {
-        setLoading(true)
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log("still  getting current loc")
-                Geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        setCurrentLocation({ latitude, longitude });
-                        // fetchStreetAddress(latitude, longitude); // Fetch street address 
-                        FetchStateData(User.state)
-                            .then(res => {
-                                if (res.error != null) {
-                                    setLoading(false)
-                                    alert("Make sure your are connected to the internet")
-                                } else {
-                                    setFechBethels(res.data[0].bethel)
-                                    seterror({
-                                        msg: "",
-                                        type: "",
-                                        status: false
-                                    })
-                                }
-                                setLoading(false)
-                                handleSnapPress(0)
-                            })
-                    },
-                    (error) => {
-                        console.error(error);
-                        setLoading(false)
-                    }
-                );
-
-            } else {
-                setLoading(false)
-                console.log('Location permission denied');
-            }
-        } catch (err) {
-            console.warn(err);
-            setLoading(false)
-        }
 
 
-        // console.log(currentLocation)
-        // try {
-        //     const granted = await PermissionsAndroid.request(
-        //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        //     );
-        //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        //         Geolocation.watchPosition(
-        //             (position) => {
-        //                 const { latitude, longitude } = position.coords;
-        //                 setCurrentLocation({ latitude, longitude });
-        //                 console.log(position)
-        //             },
-        //             (error) => {
-        //                 console.error(error);
-        //             },
-        //             { enableHighAccuracy: true, distanceFilter: 10 }
-        //         );
-        //     } else {
-        //         console.log('Location permission denied');
-        //     }
-        // } catch (err) {
-        //     console.warn(err);
-        // }
-    };
+
 
     useEffect(() => {
 
@@ -222,27 +146,22 @@ function Add_details({ navigation, disp_logout, appState }) {
 
 
         const unsubscribe = navigation.addListener('focus', async () => {
-            console.log("User", User)
+            // console.log("User", User)
             if (User == null) {
                 navigation.replace("Auth");
-            } else {
-                setDelta({
-                    latitudeDelta: 0.08,
-                    longitudeDelta: 0.08,
-                })
-                setLatLng({
-                    latitude: 5.0363,
-                    longitude: 7.9167,
-                    latitudeDelta: 0.1,
-                    longitudeDelta: 0.1,
-                })
-
-
-                requestLocationPermission();
             }
-
             handleSnapPress(0)
 
+            if (User) {
+                if (myCurrentLocation == null) {
+                    // fetch low accuracy location with loader , on success fetch high accuracy without loader
+                    RequestLocationPermission({ accuracy: false, setLoading, dispLocation })
+                } else {
+                    // fetch high aacuracuracy without loader.
+                    RequestLocationPermission({ accuracy: true, dispLocation })
+                }
+                GetAllBethel({ state: User.state, setFechBethels }) // get all bethels
+            }
         });
 
         // Remove event listener when the component unmounts
@@ -274,7 +193,7 @@ function Add_details({ navigation, disp_logout, appState }) {
     const bottomSheetRef = useRef(null);
 
     // bottom drawer  snapPoints variables
-    const snapPoints = useMemo(() => ['17%', '70%', '95%'], []);
+    const snapPoints = useMemo(() => ['25%', '75%', '95%'], []);
 
     // callbacks when the drawer is closed or open
     const handleSheetChanges = useCallback((index) => {
@@ -309,11 +228,6 @@ function Add_details({ navigation, disp_logout, appState }) {
         bottomSheetRef.current?.snapToIndex(index);
     }, []);
 
-    const GOOGLE_MAPS_APIKEY = APIKEY;
-
-
-    const [filteredData, setFilteredData] = useState([]);
-    const [wordEntered, setWordEntered] = useState("");
 
     const handleFilter = (searchWord) => {
         const newFilter = FechBethels.filter((value) => {
@@ -332,23 +246,23 @@ function Add_details({ navigation, disp_logout, appState }) {
             const { lat, lng } = details.geometry.location;
             console.log('Latitude:', lat);
             console.log('Longitude:', lng);
-            console.log(details.geometry.location)
+            console.log(details.geometry)
 
-            setdrawRoute(false)
-            let coord = details.geometry.location
-            setTimeout(() => {
-                handleSnapPress(1)
-                setDrawerType("SELECTED BETHEL")
-            }, 500);
-            console.log(coord)
+            // setdrawRoute(false)
+            // let coord = details.geometry.location
+            // setTimeout(() => {
+            //     handleSnapPress(1)
+            //     setDrawerType("SELECTED BETHEL")
+            // }, 500);
+            // console.log(coord)
 
-            setbethelData({
-                latitude: coord.lat,
-                longitude: coord.lng,
-                latitudeDelta: 0.008,
-                longitudeDelta: 0.008,
-                bethel: "Ndele bethel"
-            })
+            // setbethelData({
+            //     latitude: coord.lat,
+            //     longitude: coord.lng,
+            //     latitudeDelta: 0.008,
+            //     longitudeDelta: 0.008,
+            //     bethel: "Ndele bethel"
+            // })
 
 
 
@@ -384,37 +298,7 @@ function Add_details({ navigation, disp_logout, appState }) {
                     </Pressable>
 
 
-                    {/* <GooglePlacesAutocomplete
-                        placeholder='Enter Bethel name'
-                        onPress={(data, details = null) => {
-                            // 'details' is provided when fetchDetails = true
-                            // console.log(data, details);
-                            handlePlaceSelect(data, details)
-                        }}
-                        // onPress={handlePlaceSelect}
-                        query={{
-                            key: APIKEY,
-                            language: 'en',
-                            components: 'country:ng',
-                        }} 
-                        // predefinedPlaces={FechBethels}
-                        textInputProps={{
-                            onFocus: () => { handleSnapPress(2) },
-                            style:
-                            {
-                                width: "90%",
-                                height: "80%",
-                                borderWidth: 1,
-                                borderColor: '#ccc',
-                                borderRadius: 4,
-                                paddingHorizontal: 10,
-                                marginLeft: "5%",
-                                marginBottom: 10,
-                            }
-                        }}
-                        // currentLocation={true}
-                        fetchDetails={true}
-                    /> */}
+
 
                     {/* <TextInput
                         // autoFocus
@@ -436,270 +320,172 @@ function Add_details({ navigation, disp_logout, appState }) {
     const RenderBethelInfo = () => {
         if (drawerType == "SELECTED BETHEL" || drawerType == "ENROUTE") {
             return (
-                <>
+                <View  >
+                    {console.log(drawerType)}
                     <View style={{ width: "100%", justifyContent: "flex-start", flex: 1, }} >
-                        <Pressable
-                            style={{
-                                // backgroundColor: "red",
-                                // padding: 20,
-                                flexDirection: "row",
-                                flex: 1
-                            }}
-                        >
 
-                            <Pressable style={{
-                                // backgroundColor: "blue",
-                                // padding: 20,
-                                flexDirection: "row",
-                                flex: 1
-                            }}
 
-                                onPress={() => {
-                                    handleSnapPress(1)
-                                }}
-                            >
-                                <FontAwesomeIcon size={23} style={{
-                                    // flex: 1,
-                                    color: Colors.primary,
-                                    // opacity: 0.8,
-                                    marginLeft: 10
-                                    // margin: 20,
-                                }}
-                                    icon={faMapMarkerAlt} />
-                                <Text style={[Style.boldText, { marginLeft: 10 }]}>
-                                    Bethel info
-                                </Text>
-                            </Pressable>
-
-                            <Pressable style={{
-                                // backgroundColor: "green", 
-                                justifyContent: "center",
-                                paddingLeft: 10,
-                                paddingRight: 10,
-                                marginRight: 10,
-                            }}
-                                onPress={() => {
-                                    handleSnapPress(2)
-                                    setDrawerType("IDLE")
-                                    setsearch(true)
-                                    setWordEntered("")
-                                    setFilteredData([])
-                                }}
-                            >
-                                <FontAwesomeIcon size={23} style={{
-                                    color: Colors.primary,
-                                    marginLeft: 10,
-
-                                }}
-                                    icon={faRepeat} />
-                            </Pressable>
-                        </Pressable>
-                        <View
-                            style={{
-                                backgroundColor: "#E1ECF4",
-                                // backgroundColor: Colors.light,
-                                padding: 18,
-                                // borderRadius: 10,
-                                marginTop: 14,
-                                marginBottom: 10,
-                                borderRadius: 6,
-                                display: "flex",
-                                flexDirection: "row",
-                                justifyContent: "space-around"
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    color: Colors.dark,
-                                    fontSize: 20,
-                                    // textAlign:"center",
-                                    fontWeight: 900,
-                                    flex: 9,
-                                    // backgroundColor:"red",
-                                    textAlign: "left"
-                                }}>
-                                {bethelData.bethel}
-                            </Text>
-                            <FontAwesomeIcon size={29} style={{
-                                color: Colors.grey,
-                                marginLeft: 10,
-
-                            }}
-                                icon={faChurch} />
+                        <View style={{
+                            paddingHorizontal: 10
+                        }} >
+                            <BoldText3
+                                color={Colors.primary}
+                                text={`(${bethelData.bethel} ${bethelData.data.state})`}
+                            />
                         </View>
 
+
+                        <View
+                            style={{
+                                padding: 10,
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                marginBottom: 10
+                            }}
+                        >
+
+                            {drawerType == "ENROUTE" ?
+                                <PillButton
+                                    textColor={Colors.primary}
+                                    style={{
+                                        backgroundColor: Colors.secondary
+                                    }}
+                                    callBack={() => {
+                                        setdrawRoute(false)
+                                        setDrawerType("SELECTED BETHEL")
+                                        handleSnapPress(0)
+                                        mapRef.current.animateToRegion(
+                                            {
+                                                ...currentLocation, latitudeDelta: 0.09,
+                                                longitudeDelta: 0.09,
+                                            }, 2000);
+                                    }}
+                                    title="Reroute here" />
+                                :
+                                <PillButton
+                                    loading={routeLoading}
+                                    callBack={() => {
+                                        setrouteLoading(true)
+                                        setdrawRoute(true)
+                                        // handleSnapPress(0)
+                                        setsearch(false)
+                                        setDelta({
+                                            latitudeDelta: 0.02,
+                                            longitudeDelta: 0.02,
+                                        })
+                                    }}
+                                    title="Direction on map" />}
+
+
+                            <PillButton
+                                icon={faPhone}
+                                callBack={() => {
+                                    let numb = bethelData.data.phones.split(",")[0]
+                                    const phoneNumber = `tel:${numb}`;
+                                    Linking.openURL(phoneNumber);
+                                }}
+                                title="Call for direction" />
+
+                            <PillButton
+                                icon={faClose}
+                                callBack={() => {
+                                    handleSnapPress(0)
+                                    setDrawerType("IDLE")
+                                    // setsearch(true)
+                                    setWordEntered("")
+                                    setFilteredData([])
+                                    setdrawRoute(false)
+                                }}
+                                title="Close" />
+
+                        </View>
+                        <Divider style={{ marginVertical: 10 }} />
                         <View
                             style={{
                                 // flex: 1,
                                 justifyContent: 'space-between',
-                                // flexDirection:"column",
-                                // backgroundColor:"lime"
+                                padding: 10
                             }} >
-                            <View>
 
-                                <Text
-                                    style={[Style.boldText, {
-                                        textAlign: "left",
-                                        marginLeft: 20
-                                    }]}>
-                                    {bethelData.data.address}
-                                </Text>
 
+
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <FontAwesomeIcon size={16} style={{
+                                    // flex: 1,
+                                    color: Colors.primary,
+                                }}
+                                    icon={faMapMarkerAlt} />
+
+
+                                <BoldText2
+                                    style={{ marginLeft: 5 }}
+                                    text={bethelData.data.address}
+                                    color="black"
+                                />
+
+
+                            </View>
+
+                            <View
+                                style={{
+                                    // flexDirection: "row",
+                                    // alignItems: "center",
+                                    // marginTop: 10
+                                }}
+                            >
                                 <Text
                                     style={[Style.Text, {
                                         textAlign: "left",
-                                        marginLeft: 20,
+                                        marginLeft: 15,
                                         marginTop: 16
                                     }]}>
                                     Clossest Landmark
                                 </Text>
-                                <Text
-                                    style={[Style.boldText, {
-                                        textAlign: "left",
-                                        marginLeft: 20
-                                    }]}>
-                                    {bethelData.data.landmark}
-                                </Text>
-                                <Text
+                                <BoldText2
+                                    style={{ marginLeft: 15 }}
+                                    text={bethelData.data.landmark}
+                                    color="black"
+                                />
+                                {/* <Text
                                     style={[Style.Text, {
                                         textAlign: "left",
                                         marginLeft: 20,
                                         marginTop: 16
                                     }]}>
-                                    Contact :
+                                    Contact phone numbers :
                                 </Text>
 
                                 {bethelData.data.phones.split(",").map((e, index) => {
                                     return <>
-                                        <Text
-                                            key={index}
-                                            style={[Style.boldText, {
-                                                textAlign: "left",
-                                                marginLeft: 20
-                                            }]}>
-                                            {e}
-                                        </Text></>
-                                })}
+                                        <BoldText2
+                                            style={{ marginLeft: 16 }}
+                                            text={e}
+                                            color="black"
+                                        />
+                                    </>
+                                })} */}
 
-                                {/* <Image
+
+                            </View>
+                            <Image
                                 style={[styles.imageBackground, {
-                                    width: "90%", height: "30%",
+                                    // width: "90%", height: "30%",
                                     marginTop: 14,
-                                    marginLeft: "5%"
+                                    marginLeft: "5%",
+                                    aspectRatio: 1
                                     // borderRadius: 10,
                                 }]}
-                                // source={require('../../assets/user.png')}
-                                // source={require('../../../assets/img2.jpg')}
-                                // source={require('@expo/snack-static/react-native-logo.png')}
-                                src={'https://scontent.fabb1-2.fna.fbcdn.net/v/t39.30808-6/358493856_3542083182778032_7112673311330109004_n.jpg?_nc_cat=105&cb=99be929b-59f725be&ccb=1-7&_nc_sid=730e14&_nc_eui2=AeFpOkiXbHw9FSo_CGwU5DXD8LBL3iMUrovwsEveIxSui6l54HnFzplu5FwZwPJReRVcpDVSPWEqM-crqbcuMciT&_nc_ohc=-GTeWzey9bIAX9ctaW-&_nc_zt=23&_nc_ht=scontent.fabb1-2.fna&oh=00_AfDFt3_p_YjK9DpJ9I2caWReQOU02QcpYlRwbTxGxnpq8A&oe=64AE0052'}
-                                resizeMode={'stretch'} /> */}
-                            </View>
-
+                                src={"https://lh3.googleusercontent.com/p/AF1QipPwmxrokDbnaB_YdIS_8qENnwXOaf7r-xh4xrql=s680-w680-h510"}
+                                resizeMode={'stretch'} />
                         </View>
 
-                        <Pressable style={{
-                            flexDirection: "row",
-                            flex: 1,
-                            marginTop: 27
-                        }}
-
-                            onPress={() => {
-                                let numb = bethelData.data.phones.split(",")[0]
-                                const phoneNumber = `tel:${numb}`;
-                                Linking.openURL(phoneNumber);
-                            }}
-                        >
-                            <FontAwesomeIcon size={23} style={{
-                                // flex: 1,
-                                color: Colors.primary,
-                                // opacity: 0.8,
-                                marginLeft: 10
-                                // margin: 20,
-                            }}
-                                icon={faPhone} />
-                            <Text style={[Style.boldText2, { marginLeft: 10 }]}>
-                                Call for direction
-                            </Text>
-                        </Pressable>
-
-
                     </View >
-
-                    {/* button to draw route */}
-                    {
-                        drawerType != "ENROUTE" &&
-                        <PrimaryButton
-                            style={{
-                                width: "90%",
-                                // marginLeft: "5%",
-                                marginTop: 40,
-                                flex: 1,
-                                // position: "absolute",
-                                // bottom: 10
-                            }}
-                            title="See direction on map" callBack={() => {
-                                setdrawRoute(true)
-                                handleSnapPress(0)
-                                setsearch(false)
-                                setDrawerType("ENROUTE")
-                                setDelta({
-                                    latitudeDelta: 0.02,
-                                    longitudeDelta: 0.02,
-                                })
-                                // handleRotateMap({
-                                //     latitude: currentLocation.latitude,
-                                //     longitude: currentLocation.longitude,
-                                // })
-                                // Animate the map to the new region
-                                const duration = 1000;
-                                const easing = Easing.out(Easing.quad);
-                                const newAnimatedRegion = new AnimatedRegion(latLng);
-                                newAnimatedRegion
-                                    .timing({ ...latLng, duration, easing })
-                                    // .start();
-                                    .start(() => {
-                                        mapRef.current.animateToRegion(latLng);
-                                        setTimeout(() => {
-                                            newAnimatedRegion
-                                                .timing({
-                                                    latitude: bethelData.latitude,
-                                                    longitude: bethelData.longitude,
-                                                    latitudeDelta: 0.02,
-                                                    longitudeDelta: 0.02,
-                                                    duration,
-                                                    easing
-                                                })
-                                                .start(
-                                                    () => {
-                                                        mapRef.current.setCamera({
-                                                            center: {
-                                                                latitude: currentLocation.latitude,
-                                                                longitude: currentLocation.longitude,
-                                                            },
-                                                            heading: 360,
-                                                            pitch: 0,
-                                                            zoom: 18,
-                                                            altitude: 0,
-                                                        });
-                                                    }
-                                                )
-                                        }, 1000);
-                                    });
-
-                                // console.log(bethelData)
-                            }} />
-                    }
-
-                    <Text
-                        style={[Style.LabelText, {
-                            textAlign: "left",
-                            marginLeft: 20,
-                            marginTop: 10
-                        }]}>
-                        Direction will be drawn on the map from your current location to {bethelData.bethel}.
-                    </Text>
-
-                </>
+                </View>
             )
         }
     }
@@ -707,6 +493,14 @@ function Add_details({ navigation, disp_logout, appState }) {
     const Redirect = () => {
         return navigation.replace("Auth")
     }
+
+
+    useEffect(() => {
+        WatchLocationChange({ dispLocation }) // watch user location change 
+        LocationPermission() // request for permission 
+    }, []);
+
+
 
     return User == null ? Redirect() : (
 
@@ -748,131 +542,152 @@ function Add_details({ navigation, disp_logout, appState }) {
                             // backgroundColor:"red"
                         }}>
                         <TouchableOpacity
-                            onPress={() => requestLocationPermission()} >
+                            onPress={() => { }} >
                             {loading == true ? <ActivityIndicator /> : <Text style={[Style.boldText]} >Retry</Text>}
                         </TouchableOpacity>
                     </View>
                 </> :
                     <>
+                        {myCurrentLocation &&
+                            <MapView
 
-                        {/* {console.log("User object", User)} */}
-                        {/* only display the map whhen the user's current location is fetched. */}
-                        {currentLocation &&
-                            <>
-                                {latLng &&
-                                    <MapView
+                                // initial location view of the map
+                                region={
+                                    {
+                                        latitude: myCurrentLocation.latitude,
+                                        longitude: myCurrentLocation.longitude,
+                                        latitudeDelta: delta.latitudeDelta,
+                                        longitudeDelta: delta.longitudeDelta,
+                                    }
+                                }
+                                ref={mapRef}
+                                style={{
+                                    // flex: 1,
+                                    // minHeight: 100,
+                                    height: "75%"
+                                }}
 
-                                        // initial location view of the map
-                                        region={
+                            >
+
+                                {/* draw direction only when the user have selected their destination bethel */}
+                                {
+                                    drawRoute == true && bethelData &&
+                                    <MapViewDirections
+                                        origin={currentLocation}
+                                        destination={
                                             {
-                                                latitude: currentLocation.latitude,
-                                                longitude: currentLocation.longitude,
-                                                latitudeDelta: delta.latitudeDelta,
-                                                longitudeDelta: delta.longitudeDelta,
+                                                latitude: bethelData.latitude,
+                                                longitude: bethelData.longitude
                                             }
                                         }
-                                        ref={mapRef}
-                                        style={{
-                                            flex: 1,
-                                            minHeight: 100,
-                                        }}
-
-                                    >
-
-
-                                        {/* draw direction only when the user have selected their destination bethel */}
-                                        {
-                                            drawRoute == true && bethelData &&
-                                            <MapViewDirections
-                                                origin={currentLocation}
-                                                destination={
+                                        apikey={GOOGLE_MAPS_APIKEY}
+                                        strokeWidth={3}
+                                        strokeColor={Colors.primary}
+                                        optimizeWaypoints={true}
+                                        onReady={result => {
+                                            setDrawerType("ENROUTE")
+                                            handleSnapPress(0)
+                                            setrouteLoading(false)
+                                            console.log(`Distance: ${result.distance} km`)
+                                            console.log(`Duration: ${result.duration} min.`)
+                                            // mapRef.current.fitToCoordinates(result.coordinates,{
+                                            //     edgePadding
+                                            // })
+                                            let Aminate = () => {
+                                                mapRef.current.animateToRegion(
                                                     {
-                                                        latitude: bethelData.latitude,
-                                                        longitude: bethelData.longitude
-                                                    }
-                                                }
-                                                apikey={GOOGLE_MAPS_APIKEY}
-                                                strokeWidth={3}
-                                                strokeColor={Colors.primary}
-                                                onReady={result => {
-                                                    console.log(`Distance: ${result.distance} km`)
-                                                    console.log(`Duration: ${result.duration} min.`)
-                                                }}
-                                            />
-                                        }
+                                                        ...currentLocation, latitudeDelta: 0.09,
+                                                        longitudeDelta: 0.09,
+                                                    }, 2000);
 
+                                                setTimeout(() => {
+                                                    mapRef.current.animateToRegion(
+                                                        {
+                                                            ...currentLocation, latitudeDelta: 0.00421,
+                                                            longitudeDelta: 0.00421,
+                                                        }, 2000);
+                                                }, 3000);
 
-                                        {/* Marker showing User's current location */}
-                                        <Marker
-                                            coordinate={{
-                                                latitude: currentLocation.latitude,
-                                                longitude: currentLocation.longitude,
-                                            }}
-                                            title={`Info`}
-                                            description={`Your current location`}
-                                        >
-                                            <View style={{
-                                                height: 30, width: 30,
-                                                backgroundColor: Colors.primary,
-                                                justifyContent: "center",
-                                                flex: 1,
-                                                alignItems: "center",
-                                                borderRadius: 50,
-                                                // padding:12
-                                            }} >
-                                                <FontAwesomeIcon size={14} style={{
-                                                    // flex: 1,
-                                                    color: Colors.light,
-                                                    // backgroundColor: "blue"
-                                                    // margin: 20,
-                                                }}
-                                                    icon={faMapMarkerAlt} />
-                                            </View>
-                                        </Marker>
+                                                setTimeout(() => {
+                                                    mapRef.current.animateToRegion(
+                                                        {
+                                                            ...bethelData, latitudeDelta: 0.03,
+                                                            longitudeDelta: 0.03,
+                                                        }, 5000);
+                                                }, 6000);
 
+                                                setTimeout(() => {
+                                                    mapRef.current.animateToRegion(
+                                                        {
+                                                            ...bethelData, latitudeDelta: 0.0421,
+                                                            longitudeDelta: 0.0421,
+                                                        }, 2000);
+                                                }, 12000);
 
+                                                setTimeout(() => {
+                                                    mapRef.current.animateToRegion(
+                                                        {
+                                                            ...currentLocation, latitudeDelta: 0.0421,
+                                                            longitudeDelta: 0.0421,
+                                                        }, 2000);
+                                                }, 16000);
 
-                                        {/* marker showing bethels */}
-                                        {FechBethels.map((marker, index) => (
-                                            <Marker
-                                                key={index}
-                                                // draggable
-                                                coordinate={marker}
-                                                title={`View Detail`}
-                                                description={`Click to view bethel details.`}
-                                                onPress={(e) => {
-                                                    setdrawRoute(false)
-                                                    let coord = e.nativeEvent.coordinate
-                                                    console.log(e.nativeEvent)
-                                                    setTimeout(() => {
-                                                        handleSnapPress(1)
-                                                        setDrawerType("SELECTED BETHEL")
-                                                    }, 500);
-                                                    saveBethelToState({ lat: coord.latitude, lng: coord.longitude })
+                                                setTimeout(() => {
+                                                    mapRef.current.animateToRegion(
+                                                        {
+                                                            ...currentLocation, latitudeDelta: 0.00421,
+                                                            longitudeDelta: 0.00421,
+                                                        }, 2000);
+                                                }, 19000);
+                                            }
 
-                                                }}
-                                            >
-                                            </Marker>
-                                        ))}
-
-                                        {/* {
-                                drawRoute == false &&
-                                <Circle
-                                    center={{
-                                        latitude: currentLocation.latitude,
-                                        longitude: currentLocation.longitude,
-                                    }}
-                                    radius={5000}
-                                    strokeWidth={1}
-                                    strokeColor="#660708"
-                                    fillColor="rgb(255, 248, 240)"
-                                />
-                            } */}
-
-                                    </MapView>
+                                            Aminate()
+                                        }}
+                                    />
                                 }
-                            </>
+
+
+                                {/* Marker showing User's current location */}
+                                <Marker
+                                    coordinate={{
+                                        latitude: myCurrentLocation.latitude,
+                                        longitude: myCurrentLocation.longitude,
+                                    }}
+                                    title={`Info`}
+                                    description={`Your current location`}
+                                />
+
+                                {/* marker showing bethels */}
+
+                                {FechBethels.length > 0 && FechBethels.map((marker, index) => (
+                                    <Marker.Animated
+                                        key={index}
+                                        // ref={markerRef}
+                                        // draggable
+                                        coordinate={marker}
+                                        title={`View Detail`}
+                                        description={`Click to view bethel details.`}
+                                        onPress={(e) => {
+                                            // setdrawRoute(false)
+                                            let coord = e.nativeEvent.coordinate
+                                            console.log(mapRef.current.animateToRegion)
+                                            setTimeout(() => {
+                                                handleSnapPress(1)
+                                                setDrawerType("SELECTED BETHEL")
+                                            }, 500);
+                                            saveBethelToState({ lat: coord.latitude, lng: coord.longitude })
+
+                                        }}
+                                    >
+                                        <CustomMarker />
+                                    </Marker.Animated>
+                                ))}
+
+
+
+                            </MapView>
                         }
+
 
 
                         <View style={styles.content}>
@@ -888,7 +703,7 @@ function Add_details({ navigation, disp_logout, appState }) {
                                 <OpenDrawer style={{
                                     // marginRight: 20
                                 }} />
-                                
+
                                 <AccountIcon />
                             </View>
 
@@ -904,10 +719,14 @@ function Add_details({ navigation, disp_logout, appState }) {
                             onChange={handleSheetChanges}
                         >
 
-                            <View style={[styles.content,{
-                                zIndex:2000
-                            }]}>
+                            <ScrollView>
                                 <RenderBethelInfo />
+                            </ScrollView>
+
+                            <View style={[styles.content, {
+                                zIndex: 2000
+                            }]}>
+
                                 {/* <RenderIdle /> */}
 
                                 {
@@ -923,55 +742,63 @@ function Add_details({ navigation, disp_logout, appState }) {
                                                     padding: 10, flexDirection: "row"
                                                 }} >
 
-                                                <FontAwesomeIcon size={23} style={{
+                                                {/* <FontAwesomeIcon size={23} style={{
                                                     // flex: 1,
                                                     color: Colors.primary,
                                                     // opacity: 0.8,
                                                     marginLeft: 10
                                                     // margin: 20,
                                                 }}
-                                                    icon={faMapMarkerAlt} />
-                                                <Text style={[Style.boldText, { marginLeft: 10 }]}>Find A Bethel</Text>
+                                                    icon={faMapMarkerAlt} /> */}
+                                                <CustomMarker />
+                                                <BoldText2
+                                                    color="black"
+                                                    text="Find the closest Bethel"
+                                                    style={{
+                                                        marginLeft: 10,
+                                                        marginTop: 20
+                                                    }}
+                                                />
                                             </Pressable>
 
 
                                             {/* <GooglePlacesAutocomplete
-                                    placeholder='Enter Bethel name'
-                                    onPress={(data, details = null) => {
-                                        // 'details' is provided when fetchDetails = true
-                                        // console.log(data, details);
-                                        handlePlaceSelect(data, details)
-                                    }}
-                                    // onPress={handlePlaceSelect}
-                                    query={{
-                                        key: APIKEY,
-                                        language: 'en',
-                                        components: 'country:ng',
-                                    }}
-                                    // predefinedPlaces={FechBethels}
-                                    textInputProps={{
-                                        onFocus: () => { handleSnapPress(2) },
-                                        style:
-                                        {
-                                            width: "90%",
-                                            height: "80%",
-                                            borderWidth: 1,
-                                            borderColor: '#ccc',
-                                            borderRadius: 4,
-                                            paddingHorizontal: 10,
-                                            marginLeft: "5%",
-                                            marginBottom: 10,
-                                        }
-                                    }}
-                                    // currentLocation={true}
-                                    fetchDetails={true}
-                                /> */}
+                                                placeholder='Enter Bethel name'
+                                                onPress={(data, details = null) => {
+                                                    // 'details' is provided when fetchDetails = true
+                                                    // console.log(data, details);
+                                                    handlePlaceSelect(data, details)
+                                                }}
+                                                // onPress={handlePlaceSelect}
+                                                query={{
+                                                    key: APIKEY,
+                                                    language: 'en',
+                                                    components: 'country:ng',
+                                                }}
+                                                // predefinedPlaces={FechBethels}
+                                                textInputProps={{
+                                                    onFocus: () => { handleSnapPress(2) },
+                                                    style:
+                                                    {
+                                                        width: "90%",
+                                                        height: "80%",
+                                                        borderWidth: 1,
+                                                        borderColor: '#ccc',
+                                                        borderRadius: 4,
+                                                        paddingHorizontal: 10,
+                                                        marginLeft: "5%",
+                                                        marginBottom: 10,
+                                                    }
+                                                }}
+                                                // currentLocation={true}
+                                                fetchDetails={true}
+                                            /> */}
 
                                             <TextInput
                                                 onFocus={() => { handleSnapPress(2) }}
                                                 value={wordEntered}
                                                 onChangeText={(value) => handleFilter(value)}
-                                                style={{ width: "90%", marginLeft: "5%" }}
+                                                style={{ width: "90%", marginLeft: "5%", marginTop: 10 }}
                                                 textColor={Colors.dark}
                                                 theme={{
                                                     colors: {
@@ -1039,7 +866,9 @@ function Add_details({ navigation, disp_logout, appState }) {
                                                     // margin: 20,
                                                 }}
                                                     icon={faMapMarkerAlt} />
-                                                <Text style={[Style.boldText, { marginLeft: 10 }]}>Find A Bethel</Text>
+                                                {/* <BoldText3
+                                                    text="Find A Bethel"
+                                                /> */}
                                             </Pressable>
 
 
@@ -1156,6 +985,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, encoded) => {
     return {
         disp_logout: () => dispatch(logoutUser()),
+        dispLocation: (payload) => dispatch(MyLocation(payload))
     };
 };
 

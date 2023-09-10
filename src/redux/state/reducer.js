@@ -12,7 +12,8 @@ import {
     EVENTS,
     FELLOWSHIPTOPAY,
     STATE,
-    CONNECT_USER
+    CONNECT_USER,
+    LOCATION
 } from '../state/types'
 
 
@@ -30,7 +31,8 @@ const initialState = {
     Jobs: [],
     Events: [],
     FellowshipToPay: null,
-    User_State: null
+    User_State: null,
+    myLocation: null
 }
 
 
@@ -46,7 +48,7 @@ const reducer = (state = initialState, action) => {
             }
         case LOGOUT:
             return {
-                ...state,
+                // ...state,
                 User: null,
                 FellowshipToPay: null,
                 User_State: null
@@ -125,7 +127,11 @@ const reducer = (state = initialState, action) => {
                 ...state,
                 SurpriseState: action.payload
             }
-
+        case LOCATION:
+            return {
+                ...state,
+                myLocation: action.payload
+            }
 
         default: return state
     }

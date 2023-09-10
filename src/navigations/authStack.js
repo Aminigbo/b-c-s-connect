@@ -3,8 +3,7 @@ import { DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator, TransitionSpecs } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Onbording from '../components/onboarding';
-import { Onborded } from '../controllers/auth/authController';
+import Onbording from '../components/onboarding'; 
 import Web from '../screens/web';
 import EditProfile from '../user/screens/edit-profile';
 import Add_details from '../user/screens/add-details';
@@ -58,13 +57,7 @@ export default function AuthStack({ appState }) {
 
     const [isOnoarded, setOnboarded] = useState()
 
-    Onborded().then(res => {
-        if (res == 1) {
-            setOnboarded(true)
-        } else {
-            setOnboarded(false)
-        }
-    })
+    
     return (
         <Stack.Navigator
             // initialRouteName={isOnoarded == true ? "WEB" : "Home"}

@@ -18,8 +18,8 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChurch, faHouse, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
-import { AccountIcon, OpenDrawer } from '../../components/icons';
+import { faChurch, faHouse, faImage, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
+import { AccountIcon, CustomMarker, OpenDrawer } from '../../components/icons';
 import { Color } from '../../components/theme';
 import { connect } from 'react-redux';
 import { surprise_state, user_state, logoutUser } from '../../redux';
@@ -36,6 +36,8 @@ import Autocomplete from 'react-native-autocomplete-input';
 import { EmptyData } from '../../events/components/empty-display';
 import { Picker } from '@react-native-picker/picker';
 import { AddNewBethel, FetchStateData } from '../models';
+import { PickPhoto } from '../../utilities/pickPhoto';
+import { BoldText1 } from '../../components/text';
 const Colors = Color()
 
 
@@ -61,6 +63,9 @@ function Add_bethel({ navigation, disp_logout, appState }) {
     const [loading, setLoading] = useState(false)
     const [selectedState, setselectedState] = useState(false);
     const [selectedZone, setselectedZone] = useState(false);
+    const [previewDPchnage, setpreviewDPchnage] = useState({
+        status: false
+    })
     const [bethelData, setbethelData] = useState(null);
     const [ZoneList, setZoneList] = useState([]);
     const [newBethelDatas, setnewBethelDatas] = useState({})
@@ -78,70 +83,9 @@ function Add_bethel({ navigation, disp_logout, appState }) {
     };
 
 
-    const FechBethels = [{
-        description: 'Ndele bethel',
-        latitude: 5.0363,
-        longitude: 7.9167,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-        bethel: "Ndele bethel",
-    },
-    {
-        description: 'Rumuji bethel',
-        latitude: 5.0441,
-        longitude: 7.9273,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-        bethel: "Rumuji bethel",
-    }, {
-        description: 'Emohua bethel',
-        latitude: 5.0511,
-        longitude: 7.9337,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-        bethel: "Emohua bethel",
-    }, {
-        description: 'Ibaa bethel',
-        latitude: 5.0279,
-        longitude: 7.9340,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-        bethel: "Ibaa bethel",
-    }, {
-        description: 'Diobu bethel',
-        latitude: 5.0223,
-        longitude: 7.9140,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-        bethel: "Diobu bethel",
-    }
-    ]
 
 
 
-    // this function get the user's current street name
-    const fetchStreetAddress = async (latitude, longitude) => {
-        // setLoading(true)
-        try {
-            const response = await axios.get(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${APIKEY}`
-            );
-            console.log(response.data)
-            if (response.data.results.length > 0) {
-                const streetAddress = response.data.results[0].formatted_address;
-                console.log('Street Address:', streetAddress);
-            }
-            // setLoading(false)
-        } catch (error) {
-            // setLoading(false)
-            // seterror({
-            //     msg: "Error connecting to server, make sure you are connected to the internet",
-            //     type: "Network error",
-            //     status: true
-            // })
-            // console.error('Error fetching street address:', error);
-        }
-    };
 
     const requestLocationPermission = async () => {
         setLoading(true)
@@ -165,6 +109,11 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                     },
                     (error) => {
                         console.error(error);
+                    },
+                    {
+                        enableHighAccuracy: true, // Use GPS if available
+                        timeout: 20000,           // Timeout after 20 seconds
+                        maximumAge: 1000,         // Accept cached location data within 1 second
                     }
                 );
                 setLoading(false)
@@ -199,22 +148,12 @@ function Add_bethel({ navigation, disp_logout, appState }) {
         return unsubscribe;
     }, [navigation])
 
-    // ======================
-    // when click on marker, retrieve the Lat and Lng
-    // filter through the bethels to get the bethel with matching Lat and Lng
-    // save that bethel to Bethel state
-    const saveBethelToState = (data) => {
-        let { lat, lng } = data;
-        let getBethel = FechBethels.filter(e => e.longitude == lng && e.latitude == lat)
-        console.log(getBethel[0])
-        setbethelData(getBethel[0])
-    }
 
     // bottomSheetRef ref
     const bottomSheetRef = useRef(null);
 
     // bottom drawer  snapPoints variables
-    const snapPoints = useMemo(() => ['88%'], []);
+    const snapPoints = useMemo(() => ['90%'], []);
 
     // callbacks when the drawer is closed or open
     const handleSheetChanges = useCallback((index) => {
@@ -234,6 +173,9 @@ function Add_bethel({ navigation, disp_logout, appState }) {
     );
 
     const GOOGLE_MAPS_APIKEY = APIKEY;
+    const [lat, setLat] = useState("");
+    const [lng, setLng] = useState("");
+
 
     function AddBethelFunction() {
         if (!newBethelDatas.state || !newBethelDatas.zone || !newBethelDatas.name || !newBethelDatas.name ||
@@ -253,6 +195,8 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                         description: newBethelDatas.address,
                         latitude: currentLocation.latitude,
                         longitude: currentLocation.longitude,
+                        // latitude: lat.length > 4 ? parseInt(lat) : currentLocation.latitude,
+                        // longitude: lng.length > 4 ? parseInt(lng) : currentLocation.longitude,
                         latitudeDelta: 0.008,
                         longitudeDelta: 0.008,
                         bethel: newBethelDatas.name,
@@ -401,50 +345,70 @@ function Add_bethel({ navigation, disp_logout, appState }) {
 
                 <ScrollView >
                     <View style={{ width: "100%", justifyContent: "flex-start" }} >
-                        <Pressable
-                            onPress={() => {
-                                // setLoading(false)
-                                requestLocationPermission()
-                            }}
-                            style={{
-                                // backgroundColor: "red",
-                                padding: 10,
-                                flexDirection: "row",
-                                justifyContent: "space-between"
+
+                        <View style={{
+                            alignItems: "center"
+                        }}>
+                            <Text style={{color:Colors.primary}} >
+                                {currentLocation && currentLocation.latitude} {`>|<`}
+                                {currentLocation && currentLocation.longitude}
+                            </Text>
+                            <View style={{
+                                paddingLeft:20,
+                                paddingRight:20,
+                                paddingTop:10,
                             }} >
+                                <BoldText1 text="Your current location has been picked. Ensure you are in the bethel at the time of this upload." />
+                            </View>
+                        </View>
 
-                            {/* <FontAwesomeIcon size={23} style={{
-                                // flex: 1,
-                                color: Colors.primary,
-                                // opacity: 0.8,
-                                marginLeft: 10
-                                // margin: 20,
-                            }}
-                                icon={faChurch} /> */}
-
-                            <Text style={[Style.boldText, { marginLeft: 10 }]}>Add A Bethel</Text>
-
-                            {loading == true ? <ActivityIndicator style={{
-                                // flex: 1,
-                                color: Colors.primary,
-                                marginRight: 15,
-                            }} /> :
-                                <FontAwesomeIcon size={19} style={{
-                                    flex: 1,
-                                    color: Colors.primary,
-                                    marginRight: 20,
+                        {/* <View style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "space-between",
+                            padding: 10
+                        }} >
+                            <TextInput
+                                // onFocus={() => { handleSnapPress(2) }}
+                                value={lat}
+                                onChangeText={(value) => {
+                                    setLat(value)
                                 }}
-                                    icon={faRepeat} />
-                            }
-                        </Pressable>
-
-                        <Text
-                            style={{
-                                marginLeft: "5%",
-                            }}>
-                            latitude: {currentLocation && currentLocation.latitude} |||
-                            longitude:{currentLocation && currentLocation.longitude}
-                        </Text>
+                                style={{ flex: 1 }}
+                                textColor={Colors.dark}
+                                theme={{
+                                    colors: {
+                                        primary: Colors.dark,
+                                        background: 'white',
+                                        placeholder: "red",
+                                    },
+                                    // roundness: 8,
+                                }}
+                                mode="outlined"
+                                // multiline 
+                                label="Lat."
+                            />
+                            <TextInput
+                                // onFocus={() => { handleSnapPress(2) }}
+                                value={lng}
+                                onChangeText={(value) => {
+                                    setLng(value)
+                                }}
+                                style={{ flex: 1 }}
+                                textColor={Colors.dark}
+                                theme={{
+                                    colors: {
+                                        primary: Colors.dark,
+                                        background: 'white',
+                                        placeholder: "red",
+                                    },
+                                    // roundness: 8,
+                                }}
+                                mode="outlined"
+                                // multiline
+                                label="Lng."
+                            />
+                        </View> */}
 
                         <Divider style={{
                             marginTop: "5%",
@@ -726,6 +690,64 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         // multiline
                                         label="Provide brief description of Bethel."
                                     />
+
+                                    <View style={{
+                                        marginTop: 20,
+                                        width: "100%",
+                                        // backgroundColor: "red",
+                                        flexDirection: "row",
+                                        justifyContent: "flex-end",
+                                        alignItems: "center"
+                                    }}>
+                                        {/* {
+                                            previewDPchnage.status == false &&
+                                        } */}
+
+                                        {console.log(previewDPchnage)}
+                                        {previewDPchnage.source ?
+                                            <TouchableOpacity
+                                                style={{ padding: 15 }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage })
+                                                }}
+                                            >
+                                                <Image
+                                                    style={[{
+                                                        flex: 1,
+                                                        // resizeMode: "stretch",
+                                                        width: "100%",
+                                                        // height: 886/3,
+                                                        aspectRatio: previewDPchnage.height > 1500 ? 0.9 : previewDPchnage.width / previewDPchnage.height,
+                                                        // width: 100,
+                                                        // height: 100,
+                                                        // borderRadius: 100,
+                                                        marginBottom: 20,
+                                                    }]}
+                                                    source={previewDPchnage.source}
+                                                    resizeMode={'cover'} />
+                                            </TouchableOpacity> : <Pressable
+                                                style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+
+                                                    PickPhoto({ setpreviewDPchnage })
+                                                }} >
+                                                <FontAwesomeIcon style={{
+                                                    flex: 1,
+                                                    color: Colors.primary,
+                                                }} size={25} icon={faImage} />
+                                                <Text style={{ color: Colors.grey, marginRight: 10 }} >Add photo</Text>
+                                            </Pressable>}
+
+
+                                        {/* 4592 */}
+
+
+
+                                    </View>
+
+
+
                                     <PrimaryButton
                                         style={{
                                             width: "90%",
@@ -737,7 +759,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                             // bottom: 10
                                         }}
                                         // loading={loading}
-                                        title="Add Bethel"
+                                        title="Add Bethel.."
                                         callBack={() => {
                                             AddBethelFunction()
                                         }} />

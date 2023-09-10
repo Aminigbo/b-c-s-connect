@@ -1,5 +1,5 @@
 import React from "react"
-import { Pressable, StyleSheet, View, Text,ActivityIndicator } from "react-native"
+import { Pressable, StyleSheet, View, Text, ActivityIndicator } from "react-native"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faBars, faBasketShopping, faCalendar, faCheckDouble } from "@fortawesome/free-solid-svg-icons"
 import IconBadge from 'react-native-icon-badge';
@@ -47,7 +47,7 @@ export function PrimaryButton({ title, callBack, style, loading }) {
     const count = 2
     return (
         <>
-            {loading && loading == true ? <ActivityIndicator style={{marginVertical:25}} /> :
+            {loading && loading == true ? <ActivityIndicator style={{ marginVertical: 25 }} /> :
                 <Pressable
                     android_ripple={{ color: "white" }}
                     onPress={() => {
@@ -79,6 +79,52 @@ export function PrimaryButton({ title, callBack, style, loading }) {
         </>
     )
 }
+
+
+
+export function PillButton({ title, callBack, style, loading, icon, textColor }) {
+    const count = 2
+    return (
+        <>
+
+            <Pressable
+                android_ripple={{ color: "white" }}
+                onPress={() => {
+                    // if (navigate == true) {
+                    //     route == "back" ? navigation.goBack() : navigation.navigate(route, { data })
+                    // }
+                    callBack()
+                }}
+                style={[{
+                    backgroundColor: Colors.primary,
+                    height: 33,
+                    // width: "90%",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    elevation: 2,
+                    borderRadius: 19,
+                    paddingHorizontal: 10,
+                    // marginHorizontal:5
+
+                }, style && style]}>
+                {loading && loading == true ? 
+                <ActivityIndicator style={{ paddingHorizontal: 25 }} /> :
+                    <>
+                        {icon && <FontAwesomeIcon size={13} style={{
+                            marginRight: 5,
+                            color: Colors.lightgrey,
+                        }}
+                            icon={icon} />}
+                        <Text style={{ textAlign: "center", fontSize: 15, color: textColor ? textColor : Colors.light }} >{title}</Text>
+                    </>
+                }
+            </Pressable>
+
+        </>
+    )
+}
+
 
 
 export function CallbackBtn({ title, callback, data }) {

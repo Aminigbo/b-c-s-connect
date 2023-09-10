@@ -51,7 +51,7 @@ function SignIn({ navigation, disp_Login, appState, disp_surprise, route }) {
     };
 
     useEffect(() => {
-        console.log("OK")
+        console.log("OK", appState)
         fetchFcmToken(setFcmoken)
 
     }, [setDate])

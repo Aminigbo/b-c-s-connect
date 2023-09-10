@@ -12,7 +12,8 @@ import {
   EVENTS,
   FELLOWSHIPTOPAY,
   STATE,
-  CONNECT_USER
+  CONNECT_USER,
+  LOCATION
 } from "../state/types";
 
 
@@ -114,4 +115,12 @@ export const CartItems = (payload) => {
     payload
 
   };
-}; 
+};
+
+// user current location
+export const MyLocation = (payload) => {
+  return {
+    type: LOCATION,
+    payload
+  }
+}

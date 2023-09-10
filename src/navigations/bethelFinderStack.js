@@ -3,8 +3,7 @@ import { DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator, TransitionSpecs } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Onbording from '../components/onboarding';
-import { Onborded } from '../controllers/auth/authController'; 
+import Onbording from '../components/onboarding'; 
 import BethelFinder from '../bethel-finder/screens/index'; 
 import Add_bethel from '../bethel-finder/screens/add-bethel';
 
@@ -46,15 +45,7 @@ const Drawer = createDrawerNavigator();
 
 export default function BethelFinderStack({ appState }) {
 
-    const [isOnoarded, setOnboarded] = useState()
-
-    Onborded().then(res => {
-        if (res == 1) {
-            setOnboarded(true)
-        } else {
-            setOnboarded(false)
-        }
-    })
+   
     return (
         <Drawer.Navigator
             drawerContent={(props) => <HelloFriday {...props} />}
