@@ -1,4 +1,4 @@
-const { launchImageLibrary } = require("react-native-image-picker")
+const { launchImageLibrary, launchCamera } = require("react-native-image-picker")
 // import ImagePicker from 'react-native-image-crop-picker';
 // import ImagePicker from 'react-native-image-crop-picker';
 
@@ -6,9 +6,10 @@ const { launchImageLibrary } = require("react-native-image-picker")
 
 export const PickPhoto = ({
     setpreviewDPchnage,
-    handleSnapPress
+    handleSnapPress,
+    Source
 }) => {
-
+    console.log(Source)
     setpreviewDPchnage({
         status: true
     })
@@ -18,9 +19,10 @@ export const PickPhoto = ({
             mediaType: "photo"
         },
         includeBase64: true,
-        quality: 0.8,
+        quality: 0.6,
         multiple: true,
         allowsEditing: true,
+        saveToPhotos: true
     }
     launchImageLibrary(options, response => {
         // console.log("ResponseXX", response.assets.id)
@@ -35,9 +37,6 @@ export const PickPhoto = ({
         } else if (response.customButton) {
             console.log(response.customButton)
         } else {
-            const source = {
-                uri: response.assets[0].uri
-            }
 
             const fileExt = response.assets[0].uri.substring(response.assets[0].uri.lastIndexOf(".") + 1);
             const fileName = `${Math.random()}.${fileExt}`;
@@ -47,6 +46,16 @@ export const PickPhoto = ({
                 name: fileName,
                 type: `image/${fileExt}`
             })
+            // const URI = {
+            //     uri: response.assets[0].uri,
+            //     fileName,
+            //     formData
+            // }
+            // Source.push(URI)
+
+            const source = {
+                uri: response.assets[0].uri
+            }
 
 
             if (handleSnapPress) { handleSnapPress(2) }

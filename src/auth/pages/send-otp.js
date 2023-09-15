@@ -22,7 +22,11 @@ import { connect } from 'react-redux';
 import { surprise_state, user_state } from '../../redux';
 import { FetchGifts } from '../../controllers/items/itemsControllers';
 import { Style } from '../../../assets/styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Defs, Pattern, Use, Image } from "react-native-svg"
+import { fetchFcmToken } from '../../utilities/fcntoken';
+import { GenerateOTP } from '../../utilities';
+import { BoldText2 } from '../../components/text';
 // import RNPaystack from 'react-native-paystack'; 
 
 const Colors = Color()
@@ -44,8 +48,10 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
     };
 
     const [data, setData] = useState({});
+    const [User, setUser] = useState({});
     const [authReroute, setAuthReroute] = useState({});
     const [loading, setLoading] = useState(false)
+    const [Fcmoken, setFcmoken] = useState(null)
 
     const onDateChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -73,6 +79,25 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
             console.log("No data")
         }
     }, [])
+
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', async () => {
+            fetchFcmToken(setFcmoken)
+            try {
+                const SuggUser = await AsyncStorage.getItem("USER")
+                setUser(JSON.parse(SuggUser))
+                console.log(JSON.parse(SuggUser))
+            } catch (e) {
+                console.log(e)
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation])
+
+
+
 
     const STYLES = ['default', 'dark-content', 'light-content'];
     const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -170,11 +195,34 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                             }}
                             mode="outlined"
                             multiline
-                            label="**********559"
-                        /> 
+                            label={`********${User && User.phone && User.phone.slice(-4)}`}
+                        />
+                        <Text>Your phone number ending with  <BoldText2 text={User && User.phone && User.phone.slice(-4)} /> </Text>
                     </View>
 
-                    <PrimaryButton style={{ width: "100%", textTransform: 'uppercase', }} callBack={() => { navigation.navigate("Enter OTP")}} title={`Send OTP `} />
+                    <PrimaryButton
+                        loading={loading}
+                        style={{ width: "100%", textTransform: 'uppercase', }} callBack={() => {
+                            // navigation.navigate("Enter OTP")
+                            var requestOptions = {
+                                method: 'GET',
+                                redirect: 'follow'
+                            };
+                            let phone = "0" + User.phone;
+                            // let phone = "09167781306";
+                            const OTP = GenerateOTP(10101, 99191);
+                            let message = `Use the OTP ${OTP} to complete your password reset process. Do not disclose this pin to anyone.`
+                            setLoading(true)
+                            fetch(`https://kullsms.com/customer/api/?username=aminigbo@harvoxx.com&password=hellopaul&message=${message}&sender=Upendo&mobiles=${phone}`, requestOptions)
+                                .then(response => response.text())
+                                .then(result => {
+                                    console.log(result)
+                                    // setLoading(false)
+                                    navigation.replace("Enter OTP", { OTP, User })
+                                })
+                                .catch(error => console.log('error', error));
+
+                        }} title={`Request OTP `} />
                 </View>
             </SafeAreaView>
         </>

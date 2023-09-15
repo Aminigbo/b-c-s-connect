@@ -445,13 +445,13 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                     <View style={{
                         // borderBottomWidth: 1,
                         // borderBottomColor: Colors.primary,
-                        // backgroundColor: Colors.primary,
+                        backgroundColor: Colors.primary,
                         flex: 1, alignItems: "center",
-                        // borderRadius: 8,
+                        borderRadius: 8,
                         paddingTop: 10, marginLeft: 10
                     }} >
                         <Text style={{
-                            fontSize: 13, color: Colors.primary, flex: 1, fontWeight: 900
+                            fontSize: 13, color: Colors.light, flex: 1, fontWeight: 900
                         }} > Dues / Reg </Text>
                     </View>
                     <Pressable

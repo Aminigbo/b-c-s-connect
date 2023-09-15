@@ -11,15 +11,14 @@ import {
     Linking,
     TouchableOpacity,
     BackHandler,
-    ScrollView
 } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Divider, TextInput } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChurch, faClose, faHouse, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
-import { AccountIcon, CustomMarker, OpenDrawer } from '../../components/icons';
+import { faCarAlt, faChurch, faClock, faClose, faDirections, faHouse, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faPhoneAlt, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
+import { AccountIcon, CustomMarker, NotificationIcon, OpenDrawer } from '../../components/icons';
 import { Color } from '../../components/theme';
 import { connect } from 'react-redux';
 import { surprise_state, user_state, logoutUser, MyLocation } from '../../redux';
@@ -37,9 +36,11 @@ import { EmptyData } from '../../events/components/empty-display';
 import { FetchStateData } from '../models';
 
 import { HandleFPN } from '../../services/handleFPN';
-import { BoldText2, BoldText3 } from '../../components/text';
+import { BoldText1, BoldText2, BoldText3 } from '../../components/text';
 import { RequestLocationPermission, WatchLocationChange } from '../../utilities/getLocation';
 import { GetAllBethel, LocationPermission } from '../controllers';
+import { BethelImage, ImgBaseUrl } from '../../utilities';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Colors = Color()
 
@@ -64,8 +65,8 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
     const [wordEntered, setWordEntered] = useState("");
     const [currentLocation, setCurrentLocation] = useState(null);
     const [delta, setDelta] = useState({
-        latitudeDelta: 0.08,
-        longitudeDelta: 0.08,
+        latitudeDelta: 0.2,
+        longitudeDelta: 0.2,
     })
     const [error, seterror] = useState({
         type: "",
@@ -78,6 +79,9 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
     const [drawRoute, setdrawRoute] = useState(false);
     const [FechBethels, setFechBethels] = useState([])
     const [routeLoading, setrouteLoading] = useState(false)
+    const [RouteData, setRouteData] = useState({})
+    const [Driving, setDriving] = useState(false)
+
     const handleRotateMap = (data) => {
         if (mapRef.current) {
             // console.log(mapRef.current.getCamera())
@@ -320,172 +324,237 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
     const RenderBethelInfo = () => {
         if (drawerType == "SELECTED BETHEL" || drawerType == "ENROUTE") {
             return (
-                <View  >
-                    {console.log(drawerType)}
-                    <View style={{ width: "100%", justifyContent: "flex-start", flex: 1, }} >
 
 
-                        <View style={{
-                            paddingHorizontal: 10
-                        }} >
-                            <BoldText3
-                                color={Colors.primary}
-                                text={`(${bethelData.bethel} ${bethelData.data.state})`}
-                            />
-                        </View>
+                <>
 
 
-                        <View
-                            style={{
-                                padding: 10,
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                marginBottom: 10
-                            }}
-                        >
+                    <ScrollView >
+                        <View  >
+                            {console.log(drawerType)}
+                            <View style={{ width: "100%", justifyContent: "flex-start", flex: 1, }} >
 
-                            {drawerType == "ENROUTE" ?
-                                <PillButton
-                                    textColor={Colors.primary}
+
+                                <View style={{
+                                    paddingHorizontal: 10
+                                }} >
+                                    <BoldText3
+                                        color={Colors.primary}
+                                        text={`${bethelData.bethel} ${bethelData.data.state}`}
+                                    />
+                                </View>
+
+                                <Divider style={{ marginVertical: 10 }} />
+
+                                <View
                                     style={{
-                                        backgroundColor: Colors.secondary
+                                        padding: 10,
+                                        flexDirection: "row",
+                                        justifyContent: "space-between",
+                                        // marginBottom: 10
                                     }}
-                                    callBack={() => {
-                                        setdrawRoute(false)
-                                        setDrawerType("SELECTED BETHEL")
-                                        handleSnapPress(0)
-                                        mapRef.current.animateToRegion(
-                                            {
-                                                ...currentLocation, latitudeDelta: 0.09,
-                                                longitudeDelta: 0.09,
-                                            }, 2000);
-                                    }}
-                                    title="Reroute here" />
-                                :
-                                <PillButton
-                                    loading={routeLoading}
-                                    callBack={() => {
-                                        setrouteLoading(true)
-                                        setdrawRoute(true)
-                                        // handleSnapPress(0)
-                                        setsearch(false)
-                                        setDelta({
-                                            latitudeDelta: 0.02,
-                                            longitudeDelta: 0.02,
-                                        })
-                                    }}
-                                    title="Direction on map" />}
+                                >
+
+                                    {drawerType == "ENROUTE" ?
+                                        <View style={{
+                                            flexDirection: "row"
+                                        }} >
+                                            <FontAwesomeIcon size={12} style={{
+                                                // color: Colors.primary, 
+                                                marginTop: 3
+                                            }} icon={faCarAlt} />
+                                            <Text style={{
+                                                // color: Colors.primary
+                                            }}> {parseInt(RouteData.duration)} km</Text>
+
+                                            <FontAwesomeIcon size={12} style={{
+                                                // color: Colors.primary,
+                                                margin: 3, marginLeft: 10,
+                                            }} icon={faClock} />
+                                            <Text style={{
+                                                // color: Colors.primary 
+                                            }} >{parseInt(RouteData.distance)} mins.</Text>
+                                        </View>
+                                        :
+                                        <Pressable
+                                            onPress={() => {
+                                                setrouteLoading(true)
+                                                setdrawRoute(true)
+                                                setsearch(false)
+                                            }}
+                                            style={{ flexDirection: "row", marginLeft: 10, }}
+                                        >
+                                            <BoldText2
+                                                text="Direction"
+                                                color={Colors.primary}
+                                                style={{ marginRight: 7 }}
+                                            />
+                                            {routeLoading ?
+                                                <ActivityIndicator style={{ paddingHorizontal: 20 }} />
+                                                :
+                                                <FontAwesomeIcon size={19} style={{
+                                                    marginRight: 5,
+                                                    // color: Colors.primary,
+                                                }}
+                                                    icon={faDirections} />
+                                            }
+
+                                        </Pressable>
+
+                                    }
+
+                                    <Pressable
+                                        onPress={() => {
+                                            let numb = bethelData.data.phones.split(",")[0]
+                                            const phoneNumber = `tel:${numb}`;
+                                            Linking.openURL(phoneNumber);
+                                        }}
+                                        style={{ flexDirection: "row" }}
+                                    >
+                                        {/* <BoldText2
+                                    text="Call"
+                                    color={Colors.primary}
+                                    style={{ marginRight: 7 }}
+                                /> */}
+                                        <FontAwesomeIcon size={19} style={{
+                                            marginRight: 20,
+                                            color: Colors.primary,
+                                        }}
+                                            icon={faPhoneAlt} />
+                                    </Pressable>
 
 
-                            <PillButton
-                                icon={faPhone}
-                                callBack={() => {
-                                    let numb = bethelData.data.phones.split(",")[0]
-                                    const phoneNumber = `tel:${numb}`;
-                                    Linking.openURL(phoneNumber);
-                                }}
-                                title="Call for direction" />
 
-                            <PillButton
-                                icon={faClose}
-                                callBack={() => {
-                                    handleSnapPress(0)
-                                    setDrawerType("IDLE")
-                                    // setsearch(true)
-                                    setWordEntered("")
-                                    setFilteredData([])
-                                    setdrawRoute(false)
-                                }}
-                                title="Close" />
-
-                        </View>
-                        <Divider style={{ marginVertical: 10 }} />
-                        <View
-                            style={{
-                                // flex: 1,
-                                justifyContent: 'space-between',
-                                padding: 10
-                            }} >
+                                </View>
+                                <Divider style={{ marginVertical: 10 }} />
+                                <View
+                                    style={{
+                                        // flex: 1,
+                                        justifyContent: 'space-between',
+                                        padding: 10
+                                    }} >
 
 
 
-                            <View
-                                style={{
-                                    flexDirection: "row",
-                                    alignItems: "center"
-                                }}
-                            >
-                                <FontAwesomeIcon size={16} style={{
-                                    // flex: 1,
-                                    color: Colors.primary,
-                                }}
-                                    icon={faMapMarkerAlt} />
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            width: "96%"
+                                        }}
+                                    >
+                                        <FontAwesomeIcon size={16} style={{
+                                            // flex: 1,
+                                            color: Colors.primary,
+                                        }}
+                                            icon={faMapMarkerAlt} />
 
 
-                                <BoldText2
-                                    style={{ marginLeft: 5 }}
-                                    text={bethelData.data.address}
-                                    color="black"
-                                />
-
-
-                            </View>
-
-                            <View
-                                style={{
-                                    // flexDirection: "row",
-                                    // alignItems: "center",
-                                    // marginTop: 10
-                                }}
-                            >
-                                <Text
-                                    style={[Style.Text, {
-                                        textAlign: "left",
-                                        marginLeft: 15,
-                                        marginTop: 16
-                                    }]}>
-                                    Clossest Landmark
-                                </Text>
-                                <BoldText2
-                                    style={{ marginLeft: 15 }}
-                                    text={bethelData.data.landmark}
-                                    color="black"
-                                />
-                                {/* <Text
-                                    style={[Style.Text, {
-                                        textAlign: "left",
-                                        marginLeft: 20,
-                                        marginTop: 16
-                                    }]}>
-                                    Contact phone numbers :
-                                </Text>
-
-                                {bethelData.data.phones.split(",").map((e, index) => {
-                                    return <>
                                         <BoldText2
-                                            style={{ marginLeft: 16 }}
-                                            text={e}
+                                            style={{ marginLeft: 10, marginTop: 10 }}
+                                            text={bethelData.data.address}
                                             color="black"
                                         />
-                                    </>
-                                })} */}
 
 
-                            </View>
-                            <Image
-                                style={[styles.imageBackground, {
-                                    // width: "90%", height: "30%",
-                                    marginTop: 14,
-                                    marginLeft: "5%",
-                                    aspectRatio: 1
-                                    // borderRadius: 10,
-                                }]}
-                                src={"https://lh3.googleusercontent.com/p/AF1QipPwmxrokDbnaB_YdIS_8qENnwXOaf7r-xh4xrql=s680-w680-h510"}
-                                resizeMode={'stretch'} />
+                                    </View>
+
+
+                                    <ScrollView
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={{ flexDirection: 'row', }}
+                                        style={{
+                                            // backgroundColor: "green",
+                                            height: 320
+                                        }}
+                                    >
+                                        {bethelData.Uris.map((URI, index) => {
+                                            return <View
+                                                key={index}
+                                                style={{
+                                                    width: 300,
+                                                    // backgroundColor: "red"
+                                                }}>
+                                                <Image
+                                                    style={[styles.imageBackground, {
+                                                        // width: 90,
+                                                        // height: 90,
+                                                        marginTop: 14,
+                                                        marginLeft: "5%",
+                                                        aspectRatio: 1.1
+                                                        // borderRadius: 10,
+                                                    }]}
+                                                    src={`${BethelImage}/${URI}`}
+                                                    resizeMode={'stretch'} />
+
+                                            </View>
+                                        })}
+
+                                    </ScrollView>
+
+
+
+
+                                    {/* <Image
+                                        style={[styles.imageBackground, {
+                                            // width: "90%", height: "30%",
+                                            marginTop: 14,
+                                            marginLeft: "5%",
+                                            aspectRatio: 1
+                                            // borderRadius: 10,
+                                        }]}
+                                        src={`${ImgBaseUrl}/${bethelData.Uris[0]}`}
+                                        resizeMode={'stretch'} /> */}
+
+
+                                    <Divider style={{ marginBottom: 20 }} />
+                                    <BoldText1
+                                        style={{ marginLeft: 15 }}
+                                        text="I have two routes in my app on the one route it contains three tab each tab has a listview and each listview content has a link to go detail page. The detail page contains two tabs."
+                                        color={Colors.grey}
+                                    />
+                                     {/* <BoldText2
+                                            style={{ marginLeft: 15 }}
+                                            text={bethelData.data.phones}
+                                            color={Colors.primary}
+                                        /> */}
+
+                                    <Pressable
+                                        style={{
+                                            alignItems: "center",
+                                            marginTop: 20
+                                        }}
+                                        onPress={() => {
+                                            handleSnapPress(0)
+                                            setDrawerType("IDLE")
+                                            // setsearch(true)
+                                            setWordEntered("")
+                                            setFilteredData([])
+                                            setdrawRoute(false)
+
+                                            mapRef.current.animateToRegion(
+                                                {
+                                                    ...myCurrentLocation, latitudeDelta: 0.09,
+                                                    longitudeDelta: 0.09,
+                                                }, 2000);
+                                        }}
+                                    >
+                                         <BoldText2
+                                            style={{ marginLeft: 15 }}
+                                            text="Cancel"
+                                            color={Colors.primary}
+                                        />
+                                    </Pressable>
+
+
+                                </View>
+
+                            </View >
                         </View>
 
-                    </View >
-                </View>
+                    </ScrollView >
+                </>
             )
         }
     }
@@ -569,11 +638,16 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
 
                             >
 
+                                <Circle 
+                                fillColor="rgba(135, 206, 235, 0.5)"
+                                strokeColor='transparent'
+                                center={myCurrentLocation} radius={10000} />
+
                                 {/* draw direction only when the user have selected their destination bethel */}
                                 {
                                     drawRoute == true && bethelData &&
                                     <MapViewDirections
-                                        origin={currentLocation}
+                                        origin={myCurrentLocation}
                                         destination={
                                             {
                                                 latitude: bethelData.latitude,
@@ -588,60 +662,34 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
                                             setDrawerType("ENROUTE")
                                             handleSnapPress(0)
                                             setrouteLoading(false)
-                                            console.log(`Distance: ${result.distance} km`)
-                                            console.log(`Duration: ${result.duration} min.`)
-                                            // mapRef.current.fitToCoordinates(result.coordinates,{
-                                            //     edgePadding
-                                            // })
+                                            setRouteData({
+                                                duration: result.duration,
+                                                distance: result.distance,
+                                            })
+
+
                                             let Aminate = () => {
                                                 mapRef.current.animateToRegion(
                                                     {
-                                                        ...currentLocation, latitudeDelta: 0.09,
-                                                        longitudeDelta: 0.09,
-                                                    }, 2000);
+                                                        ...bethelData, latitudeDelta: 0.00421,
+                                                        longitudeDelta: 0.00421,
+                                                    }, 3000);
 
                                                 setTimeout(() => {
                                                     mapRef.current.animateToRegion(
                                                         {
-                                                            ...currentLocation, latitudeDelta: 0.00421,
+                                                            ...myCurrentLocation, latitudeDelta: 0.00421,
                                                             longitudeDelta: 0.00421,
-                                                        }, 2000);
-                                                }, 3000);
-
-                                                setTimeout(() => {
-                                                    mapRef.current.animateToRegion(
-                                                        {
-                                                            ...bethelData, latitudeDelta: 0.03,
-                                                            longitudeDelta: 0.03,
                                                         }, 5000);
-                                                }, 6000);
+                                                    setDriving(true)
+                                                }, 4000);
 
-                                                setTimeout(() => {
-                                                    mapRef.current.animateToRegion(
-                                                        {
-                                                            ...bethelData, latitudeDelta: 0.0421,
-                                                            longitudeDelta: 0.0421,
-                                                        }, 2000);
-                                                }, 12000);
 
-                                                setTimeout(() => {
-                                                    mapRef.current.animateToRegion(
-                                                        {
-                                                            ...currentLocation, latitudeDelta: 0.0421,
-                                                            longitudeDelta: 0.0421,
-                                                        }, 2000);
-                                                }, 16000);
-
-                                                setTimeout(() => {
-                                                    mapRef.current.animateToRegion(
-                                                        {
-                                                            ...currentLocation, latitudeDelta: 0.00421,
-                                                            longitudeDelta: 0.00421,
-                                                        }, 2000);
-                                                }, 19000);
+                                                // setDrawerType("ENROUTE") 0.00421
                                             }
-
-                                            Aminate()
+                                            if (Driving == false) {
+                                                Aminate()
+                                            }
                                         }}
                                     />
                                 }
@@ -695,6 +743,7 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
                                 flexDirection: "row",
                                 justifyContent: "space-between",
                                 alignItems: "center",
+                                marginTop:10,
                                 // flex: 1,
                                 // backgroundColor: Colors.light,
                                 width: "100%",
@@ -705,6 +754,8 @@ function Add_details({ navigation, disp_logout, appState, dispLocation }) {
                                 }} />
 
                                 <AccountIcon />
+
+                                <NotificationIcon />
                             </View>
 
 

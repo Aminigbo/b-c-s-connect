@@ -18,7 +18,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChurch, faHouse, faImage, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faChurch, faClose, faHouse, faImage, faMapMarker, faMapMarkerAlt, faMarker, faPhone, faRecycle, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
 import { AccountIcon, CustomMarker, OpenDrawer } from '../../components/icons';
 import { Color } from '../../components/theme';
 import { connect } from 'react-redux';
@@ -38,6 +38,8 @@ import { Picker } from '@react-native-picker/picker';
 import { AddNewBethel, FetchStateData } from '../models';
 import { PickPhoto } from '../../utilities/pickPhoto';
 import { BoldText1 } from '../../components/text';
+import { UploadImage } from '../../services/uploadImg';
+import { supabase } from '../../config/supabase';
 const Colors = Color()
 
 
@@ -61,11 +63,13 @@ function Add_bethel({ navigation, disp_logout, appState }) {
         status: false
     })
     const [loading, setLoading] = useState(false)
+    const [loadingText, setLoadingText] = useState(null)
     const [selectedState, setselectedState] = useState(false);
     const [selectedZone, setselectedZone] = useState(false);
-    const [previewDPchnage, setpreviewDPchnage] = useState({
-        status: false
-    })
+    const [previewDPchnage, setpreviewDPchnage] = useState({ status: false })
+    const [previewDPchnage2, setpreviewDPchnage2] = useState({ status: false })
+    const [previewDPchnage3, setpreviewDPchnage3] = useState({ status: false })
+    const [previewDPchnage4, setpreviewDPchnage4] = useState({ status: false })
     const [bethelData, setbethelData] = useState(null);
     const [ZoneList, setZoneList] = useState([]);
     const [newBethelDatas, setnewBethelDatas] = useState({})
@@ -111,7 +115,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                         console.error(error);
                     },
                     {
-                        enableHighAccuracy: true, // Use GPS if available
+                        // enableHighAccuracy: true, // Use GPS if available
                         timeout: 20000,           // Timeout after 20 seconds
                         maximumAge: 1000,         // Accept cached location data within 1 second
                     }
@@ -153,7 +157,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
     const bottomSheetRef = useRef(null);
 
     // bottom drawer  snapPoints variables
-    const snapPoints = useMemo(() => ['90%'], []);
+    const snapPoints = useMemo(() => ['95%'], []);
 
     // callbacks when the drawer is closed or open
     const handleSheetChanges = useCallback((index) => {
@@ -179,7 +183,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
 
     function AddBethelFunction() {
         if (!newBethelDatas.state || !newBethelDatas.zone || !newBethelDatas.name || !newBethelDatas.name ||
-            !newBethelDatas.phones || !newBethelDatas.address || !newBethelDatas.landmark || !newBethelDatas.landmark) {
+            !newBethelDatas.phones || !newBethelDatas.address) {
             alert("Fill out all forms")
         } else {
             console.log(newBethelDatas)
@@ -187,16 +191,16 @@ function Add_bethel({ navigation, disp_logout, appState }) {
             // fetch data from the selected state
             FetchStateData(newBethelDatas.state)
                 .then(response => {
-                    console.log(response.data[0])
+                    // console.log(response.data[0])
 
 
                     // new bthel object
                     let NewBetheObj = {
                         description: newBethelDatas.address,
-                        latitude: currentLocation.latitude,
-                        longitude: currentLocation.longitude,
-                        // latitude: lat.length > 4 ? parseInt(lat) : currentLocation.latitude,
-                        // longitude: lng.length > 4 ? parseInt(lng) : currentLocation.longitude,
+                        // latitude: currentLocation.latitude,
+                        // longitude: currentLocation.longitude,
+                        latitude: lat.length > 4 ? parseFloat(lat) : currentLocation.latitude,
+                        longitude: lng.length > 4 ? parseFloat(lng) : currentLocation.longitude,
                         latitudeDelta: 0.008,
                         longitudeDelta: 0.008,
                         bethel: newBethelDatas.name,
@@ -219,54 +223,159 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                             alert(`${newBethelDatas.name} already exists`)
                             setLoading(false)
                         } else {
-                            returnedBethels.push(NewBetheObj)
-                            let payload = {
-                                data: returnedBethels,
-                                state: newBethelDatas.state
-                            }
-                            AddNewBethel(payload)
-                                .then(res => {
-                                    // console.log(res)
-                                    setLoading(false)
-                                    Alert.alert("Success", `${newBethelDatas.name} have been added successfully`, [
-                                        {
-                                            text: "Ok", onPress: () => {
-                                                setbethelData(null)
-                                                setselectedZone(false)
-                                                setselectedState(false)
-                                                // navigation.pop()
-                                            }
-                                        }
-                                    ])
-                                })
-                                .catch(err => {
 
+
+                            // setLoading(false) 
+                            let Uris = []
+                            supabase.storage
+                                .from("bethels")
+                                .upload(previewDPchnage.fileName, previewDPchnage.formData)
+                                .then(response => {
+                                    console.log("First response", response)
+                                    setLoadingText("Added first image")
+                                    Uris.push(response.data.path)
+                                    supabase.storage
+                                        .from("bethels")
+                                        .upload(previewDPchnage2.fileName, previewDPchnage2.formData)
+                                        .then(response2 => {
+                                            console.log("second response", response2)
+                                            setLoadingText("Added second image")
+                                            Uris.push(response2.data.path)
+                                            supabase.storage
+                                                .from("bethels")
+                                                .upload(previewDPchnage3.fileName, previewDPchnage3.formData)
+                                                .then(response3 => {
+                                                    console.log("third response", response3)
+                                                    setLoadingText("Added third image")
+                                                    Uris.push(response3.data.path)
+                                                    supabase.storage
+                                                        .from("bethels")
+                                                        .upload(previewDPchnage4.fileName, previewDPchnage4.formData)
+                                                        .then(response4 => {
+                                                            console.log("fourth response", response4)
+                                                            setLoadingText("Added fourth image")
+                                                            Uris.push(response4.data.path)
+
+                                                            // setLoading(false)
+                                                            console.log()
+                                                            returnedBethels.push({ ...NewBetheObj, Uris })
+                                                            let payload = {
+                                                                data: returnedBethels,
+                                                                state: newBethelDatas.state
+                                                            }
+                                                            AddNewBethel(payload)
+                                                                .then(res => {
+                                                                    // console.log(res)
+                                                                    Alert.alert("Success", `${newBethelDatas.name} have been added successfully`, [
+                                                                        {
+                                                                            text: "Ok", onPress: () => {
+                                                                                setLoading(false)
+                                                                                setbethelData(null)
+                                                                                setselectedZone(false)
+                                                                                setselectedState(false)
+                                                                                // navigation.pop()
+                                                                            }
+                                                                        }
+                                                                    ])
+                                                                })
+                                                                .catch(err => {
+
+                                                                })
+                                                        })
+                                                })
+                                        })
                                 })
+                            // console.log(previewDPchnage.source[0])
+
+
                         }
                     } else {
-                        returnedBethels.push(NewBetheObj)
-                        let payload = {
-                            data: returnedBethels,
-                            state: newBethelDatas.state
-                        }
-                        AddNewBethel(payload)
-                            .then(res => {
-                                // console.log(res)
-                                setLoading(false)
-                                Alert.alert("Success", `${newBethelDatas.name} have been added successfully`, [
-                                    {
-                                        text: "Ok", onPress: () => {
-                                            setbethelData(null)
-                                            setselectedZone(false)
-                                            setselectedState(false)
-                                            // navigation.pop()
-                                        }
-                                    }
-                                ])
-                            })
-                            .catch(err => {
 
+                        // setLoading(false) 
+                        let Uris = []
+                        supabase.storage
+                            .from("bethels")
+                            .upload(previewDPchnage.fileName, previewDPchnage.formData)
+                            .then(response => {
+                                console.log("First response", response)
+                                setLoadingText("Added first image")
+                                Uris.push(response.data.path)
+                                supabase.storage
+                                    .from("bethels")
+                                    .upload(previewDPchnage2.fileName, previewDPchnage2.formData)
+                                    .then(response2 => {
+                                        console.log("second response", response2)
+                                        setLoadingText("Added second image")
+                                        Uris.push(response2.data.path)
+                                        supabase.storage
+                                            .from("bethels")
+                                            .upload(previewDPchnage3.fileName, previewDPchnage3.formData)
+                                            .then(response3 => {
+                                                console.log("third response", response3)
+                                                setLoadingText("Added third image")
+                                                Uris.push(response3.data.path)
+                                                supabase.storage
+                                                    .from("bethels")
+                                                    .upload(previewDPchnage4.fileName, previewDPchnage4.formData)
+                                                    .then(response4 => {
+                                                        console.log("fourth response", response4)
+                                                        setLoadingText("Added fourth image")
+                                                        Uris.push(response4.data.path)
+
+                                                        // setLoading(false)
+                                                        console.log()
+                                                        returnedBethels.push({ ...NewBetheObj, Uris })
+                                                        let payload = {
+                                                            data: returnedBethels,
+                                                            state: newBethelDatas.state
+                                                        }
+                                                        AddNewBethel(payload)
+                                                            .then(res => {
+                                                                // console.log(res)
+                                                                Alert.alert("Success", `${newBethelDatas.name} have been added successfully`, [
+                                                                    {
+                                                                        text: "Ok", onPress: () => {
+                                                                            setLoading(false)
+                                                                            setbethelData(null)
+                                                                            setselectedZone(false)
+                                                                            setselectedState(false)
+                                                                            // navigation.pop()
+                                                                        }
+                                                                    }
+                                                                ])
+                                                            })
+                                                            .catch(err => {
+
+                                                            })
+                                                    })
+                                            })
+                                    })
                             })
+
+
+                        // returnedBethels.push(NewBetheObj)
+                        // let payload = {
+                        //     data: returnedBethels,
+                        //     state: newBethelDatas.state
+                        // }
+                        // AddNewBethel(payload)
+                        //     .then(res => {
+                        //         // console.log(res)
+                        //         setLoading(false)
+                        //         Alert.alert("Success", `${newBethelDatas.name} have been added successfully`, [
+                        //             {
+                        //                 text: "Ok", onPress: () => {
+                        //                     setbethelData(null)
+                        //                     setselectedZone(false)
+                        //                     setselectedState(false)
+                        //                     // navigation.pop()
+                        //                 }
+                        //             }
+                        //         ])
+                        //     })
+                        //     .catch(err => {
+
+                        //     })
                     }
                 })
                 .catch(err => {
@@ -301,6 +410,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                         alignItems: "center"
                     }} >
                     <ActivityIndicator />
+                    <Text style={{ color: "white" }}>{loadingText}</Text>
                 </View>
             }
 
@@ -343,26 +453,27 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                 onChange={handleSheetChanges}
             >
 
+
                 <ScrollView >
                     <View style={{ width: "100%", justifyContent: "flex-start" }} >
 
                         <View style={{
                             alignItems: "center"
                         }}>
-                            <Text style={{color:Colors.primary}} >
+                            <Text style={{ color: Colors.primary }} >
                                 {currentLocation && currentLocation.latitude} {`>|<`}
                                 {currentLocation && currentLocation.longitude}
                             </Text>
                             <View style={{
-                                paddingLeft:20,
-                                paddingRight:20,
-                                paddingTop:10,
+                                paddingLeft: 20,
+                                paddingRight: 20,
+                                paddingTop: 10,
                             }} >
                                 <BoldText1 text="Your current location has been picked. Ensure you are in the bethel at the time of this upload." />
                             </View>
                         </View>
 
-                        {/* <View style={{
+                        <View style={{
                             flexDirection: "row",
                             justifyContent: "space-between",
                             alignItems: "space-between",
@@ -408,7 +519,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                 // multiline
                                 label="Lng."
                             />
-                        </View> */}
+                        </View>
 
                         <Divider style={{
                             marginTop: "5%",
@@ -542,10 +653,10 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         }}
                                         mode="outlined"
                                         // multiline
-                                        label="Enter bethel name to find."
+                                        label="Enter name of Bethel to add."
                                     />
 
-                                    <Text style={{
+                                    {/* <Text style={{
                                         marginLeft: "5%",
                                         marginTop: 25, marginBottom: 4,
                                         color: Colors.dark
@@ -572,13 +683,13 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         mode="outlined"
                                         // multiline
                                         label="Enter name of Bethel Admin"
-                                    />
+                                    /> */}
 
                                     <Text style={{
                                         marginLeft: "5%",
                                         marginTop: 25, marginBottom: 4,
                                         color: Colors.dark
-                                    }}>Phone contacts of Admin & Priest</Text>
+                                    }}>Phone contacts of Admin or Priest</Text>
                                     <TextInput
                                         // onFocus={() => { handleSnapPress(2) }}
                                         value={newBethelDatas.phones}
@@ -600,7 +711,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         }}
                                         mode="outlined"
                                         // multiline
-                                        label="Seperate with comma ( , )"
+                                        label="Enter contact phone number"
                                     />
 
                                     <Text style={{
@@ -631,37 +742,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         // multiline
                                         label="What's the official address of the Bethel"
                                     />
-
-                                    <Text style={{
-                                        marginLeft: "5%",
-                                        marginTop: 25, marginBottom: 4,
-                                        color: Colors.dark
-                                    }}>Nearest landmark</Text>
-                                    <TextInput
-                                        // onFocus={() => { handleSnapPress(2) }}
-                                        value={newBethelDatas.landmark}
-                                        onChangeText={(value) => {
-                                            setnewBethelDatas({
-                                                ...newBethelDatas,
-                                                landmark: value
-                                            })
-                                        }}
-                                        style={{ width: "90%", marginLeft: "5%", }}
-                                        textColor={Colors.dark}
-                                        theme={{
-                                            colors: {
-                                                primary: Colors.dark,
-                                                background: 'white',
-                                                placeholder: "red",
-                                            },
-                                            // roundness: 8,
-                                        }}
-                                        mode="outlined"
-                                        // multiline
-                                        label="What's the nearest landmark ?"
-                                    />
-
-                                    <Text style={{
+                                    {/* <Text style={{
                                         marginLeft: "5%",
                                         marginTop: 25, marginBottom: 4,
                                         color: Colors.dark
@@ -689,62 +770,154 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         mode="outlined"
                                         // multiline
                                         label="Provide brief description of Bethel."
-                                    />
+                                    /> */}
 
+
+                                    {/* {console.log(previewDPchnage.source)} */}
                                     <View style={{
-                                        marginTop: 20,
-                                        width: "100%",
-                                        // backgroundColor: "red",
+                                        // display: "flex",
                                         flexDirection: "row",
-                                        justifyContent: "flex-end",
-                                        alignItems: "center"
+                                        justifyContent: "center",
+                                        flexWrap: 'wrap',
+                                        marginTop: 30
                                     }}>
-                                        {/* {
-                                            previewDPchnage.status == false &&
-                                        } */}
-
-                                        {console.log(previewDPchnage)}
                                         {previewDPchnage.source ?
-                                            <TouchableOpacity
-                                                style={{ padding: 15 }}
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
                                                 onPress={() => {
                                                     PickPhoto({ setpreviewDPchnage })
-                                                }}
-                                            >
+                                                }} >
                                                 <Image
                                                     style={[{
-                                                        flex: 1,
-                                                        // resizeMode: "stretch",
-                                                        width: "100%",
-                                                        // height: 886/3,
-                                                        aspectRatio: previewDPchnage.height > 1500 ? 0.9 : previewDPchnage.width / previewDPchnage.height,
-                                                        // width: 100,
-                                                        // height: 100,
-                                                        // borderRadius: 100,
-                                                        marginBottom: 20,
+                                                        aspectRatio: 1,
+                                                        width: 150,
+                                                        height: 150,
+                                                        margin: 3
                                                     }]}
                                                     source={previewDPchnage.source}
                                                     resizeMode={'cover'} />
-                                            </TouchableOpacity> : <Pressable
-                                                style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}
+                                            </Pressable>
+
+                                            :
+                                            <Pressable
                                                 android_ripple={{ color: Colors.primary }}
                                                 onPress={() => {
-
                                                     PickPhoto({ setpreviewDPchnage })
-                                                }} >
+                                                }}
+                                                style={{
+                                                    width: 150, height: 150, borderRightWidth: 2, justifyContent: "center", alignItems: "center"
+                                                }}>
                                                 <FontAwesomeIcon style={{
                                                     flex: 1,
                                                     color: Colors.primary,
                                                 }} size={25} icon={faImage} />
-                                                <Text style={{ color: Colors.grey, marginRight: 10 }} >Add photo</Text>
+                                                <Text style={{ color: Colors.grey, marginLeft: 10 }} >Add Bethel photo</Text>
+                                            </Pressable>
+                                        }
+
+
+                                        {previewDPchnage2.source ?
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage2 })
+                                                }} >
+                                                <Image
+                                                    style={[{
+                                                        aspectRatio: 1,
+                                                        width: 150,
+                                                        height: 150,
+                                                        margin: 3
+                                                    }]}
+                                                    source={previewDPchnage2.source}
+                                                    resizeMode={'cover'} />
+                                            </Pressable>
+
+                                            :
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage2 })
+                                                }}
+                                                style={{
+                                                    width: 150, height: 150, justifyContent: "center", alignItems: "center"
+                                                }}>
+                                                <FontAwesomeIcon style={{
+                                                    flex: 1,
+                                                    color: Colors.primary,
+                                                }} size={25} icon={faImage} />
+                                                <Text style={{ color: Colors.grey, marginLeft: 10 }} >Add Bethel photo</Text>
                                             </Pressable>}
 
+                                        {previewDPchnage3.source ?
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage3 })
+                                                }} >
+                                                <Image
+                                                    style={[{
+                                                        aspectRatio: 1,
+                                                        width: 150,
+                                                        height: 150,
+                                                        margin: 3
+                                                    }]}
+                                                    source={previewDPchnage3.source}
+                                                    resizeMode={'cover'} />
+                                            </Pressable>
 
-                                        {/* 4592 */}
+                                            :
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage3 })
+                                                }}
+                                                style={{
+                                                    width: 150, height: 150, borderRightWidth: 2, borderTopWidth: 2, justifyContent: "center", alignItems: "center"
+                                                }}>
+                                                <FontAwesomeIcon style={{
+                                                    flex: 1,
+                                                    color: Colors.primary,
+                                                }} size={25} icon={faImage} />
+                                                <Text style={{ color: Colors.grey, marginLeft: 10 }} >Add Bethel photo</Text>
+                                            </Pressable>}
 
+                                        {previewDPchnage4.source ?
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage4 })
+                                                }} >
+                                                <Image
+                                                    style={[{
+                                                        aspectRatio: 1,
+                                                        width: 150,
+                                                        height: 150,
+                                                        margin: 3
+                                                    }]}
+                                                    source={previewDPchnage4.source}
+                                                    resizeMode={'cover'} />
+                                            </Pressable>
 
+                                            :
+                                            <Pressable
+                                                android_ripple={{ color: Colors.primary }}
+                                                onPress={() => {
+                                                    PickPhoto({ setpreviewDPchnage: setpreviewDPchnage4 })
+                                                }}
+                                                style={{
+                                                    width: 150, height: 150, borderTopWidth: 2, justifyContent: "center", alignItems: "center"
+                                                }}>
+                                                <FontAwesomeIcon style={{
+                                                    flex: 1,
+                                                    color: Colors.primary,
+                                                }} size={25} icon={faImage} />
+                                                <Text style={{ color: Colors.grey, marginLeft: 10 }} >Add Bethel photo</Text>
+                                            </Pressable>}
 
                                     </View>
+
+
 
 
 
@@ -762,6 +935,7 @@ function Add_bethel({ navigation, disp_logout, appState }) {
                                         title="Add Bethel.."
                                         callBack={() => {
                                             AddBethelFunction()
+                                            // console.log(previewDPchnage)
                                         }} />
 
                                 </View>

@@ -402,6 +402,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                 setData: setCampaigns,
                 setDataDefalt: setData
             })
+            setcomponent("EVENTS")
         });
 
 
@@ -579,10 +580,10 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             // alignItems: "center",
                             marginTop: 10,
                             // backgroundColor:"green"
-                            borderBottomWidth: loading == false && component == "DONATIONS" ? 1 : 0,
-                            borderBottomColor: loading == false && component == "DONATIONS" ? Colors.lightgrey : Colors.light
+                            // borderBottomWidth: loading == false && component == "DONATIONS" ? 1 : 0,
+                            // borderBottomColor: loading == false && component == "DONATIONS" ? Colors.lightgrey : Colors.light
                         }} >
-                        <Text style={[component == "DONATIONS" && Style.boldText, { paddingBottom: 10, color: Colors.dark }]} >Donation Campaigns</Text>
+                        <Text style={[{ paddingBottom: 10, color: Colors.dark }]} >Donation Campaigns</Text>
                     </Pressable>
 
                     {/* <Pressable
@@ -636,9 +637,11 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                         justifyContent: "flex-start",
                         zIndex: 2000,
                         width: "100%",
+                        backgroundColor: Colors.light,
+                        marginTop: 20
                     }}
                 >
-                    {/* <Pressable
+                    <Pressable
                         onPress={() => {
                             // setcomponent("EVENTS")
                             handleScrollToTop()
@@ -658,17 +661,21 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             borderBottomWidth: loading == false && component == "EVENTS" ? 1 : 0,
                             borderBottomColor: loading == false && component == "EVENTS" ? Colors.lightgrey : Colors.light
                         }} >
-                        <Text style={[component == "EVENTS" && Style.boldText, { paddingBottom: 10 }]} >BCS Events</Text>
-                    </Pressable> */}
+                        <Text style={[component == "EVENTS" && Style.boldText, { paddingBottom: 10 }]} >All campaigns</Text>
+                    </Pressable>
 
-                    {/* <Pressable
+                    <Pressable
                         onPress={() => {
                             handleScrollToTop()
-                            GetApp_Campaigns({
-                                setLoading,
-                                setData: setCampaigns,
-                                component: "DONATIONS", setcomponent
-                            })
+                            setCampaigns(data.filter(e => e.meta.posterPhone == User.phone))
+                            setcomponent("MYCAMPAIGNS")
+
+                            // GetApp_Campaigns({
+                            //     setLoading,
+                            //     setData: setCampaigns,
+                            //     component: "DONATIONS", setcomponent
+                            // })
+
                         }}
                         style={{
                             // justifyContent: "center",
@@ -677,11 +684,11 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             // alignItems: "center",
                             // marginRight: 20,
                             // backgroundColor:"green"
-                            borderBottomWidth: loading == false && component == "DONATIONS" ? 1 : 0,
-                            borderBottomColor: loading == false && component == "DONATIONS" ? Colors.lightgrey : Colors.light
+                            borderBottomWidth: loading == false && component == "MYCAMPAIGNS" ? 1 : 0,
+                            borderBottomColor: loading == false && component == "MYCAMPAIGNS" ? Colors.lightgrey : Colors.light
                         }} >
-                        <Text style={[component == "DONATIONS" && Style.boldText, { paddingBottom: 10,color:Colors.dark }]} >Donation Campaigns</Text>
-                    </Pressable> */}
+                        <Text style={[component == "MYCAMPAIGNS" && Style.boldText, { paddingBottom: 10, color: Colors.dark }]} >My Campaigns ({data.filter(e => e.meta.posterPhone == User.phone).length})</Text>
+                    </Pressable>
                 </View>
 
             </View >
@@ -721,20 +728,29 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                         <>
                             <View style={styles.content}>
 
-                                {component == "EVENTS" ?
+                                {component == "MYCAMPAIGNS" ?
                                     <>
                                         <View style={{ marginTop: 10, width: "100%" }} >
                                             {
-                                                // data.sort(() => 0.5 - Math.random()).map((e, index) => {
-                                                data.map((e, index) => {
+
+                                                // replace Campaigns with data if you want to continue with the pagination
+                                                // Campaigns.length > 0 && Campaigns.sort(() => 0.5 - Math.random()).map((e, index) => {
+                                                Campaigns.length > 0 && Campaigns.map((e, index) => {
                                                     return (
                                                         <>
-                                                            <FeedCard Navigation={navigation} key={index} />
+                                                            <DonationCard
+                                                                data={e}
+                                                                navigation={navigation}
+                                                                key={index}
+                                                                setdateToView={setdateToView}
+                                                                setModalVisible={setModalVisible}
+                                                            />
                                                         </>
                                                     )
                                                 })
                                             }
-                                        </View></>
+                                        </View>
+                                    </>
                                     :
                                     <>
                                         <View style={{ marginTop: 10, width: "100%" }} >
@@ -1166,7 +1182,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         // backgroundColor: "red",
-        marginTop: 50
+        marginTop: 80
     },
 
     textInput: {

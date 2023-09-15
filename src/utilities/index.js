@@ -57,6 +57,9 @@ export const monthNames =
     ];
 
 export const ImgBaseUrl = "https://ddhqtepvmjgbfndcjrkn.supabase.co/storage/v1/object/public/images";
+
+export const BethelImage = "https://ddhqtepvmjgbfndcjrkn.supabase.co/storage/v1/object/public/bethels";
+
 export const API_URL = "https://upendo-server.vercel.app//api/v1/firebase/"
 
 export const base_URL = "https://upendo-server.vercel.app//api/v1/"
@@ -66,6 +69,12 @@ export const API_Base_URL = "https://upendo-server.vercel.app//api/v1/"
 export const NumberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+// generate otp
+export const GenerateOTP = (min, max) => {
+    let randomNum = Math.random() * (max - min) + min;
+    return Math.floor(randomNum);
+  };
 
 export function CurrentTime() {
     const currentDate = new Date();

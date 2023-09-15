@@ -44,6 +44,7 @@ import { FetchMetaData } from '../../auth/models/auth-models';
 import { PushNotification } from '../../services/triggerNotifications';
 import { ImgBaseUrl } from '../../utilities';
 import { GetApp_Campaigns } from '../../events/controllers/campaign-contrller';
+import { BoldText2 } from '../../components/text';
 
 
 const { height, width } = Dimensions.get('window');
@@ -114,6 +115,7 @@ function ViewProfile({ route, appState, disp_events }) {
     const handleSheetChanges = useCallback((index) => {
         console.log('handleSheetChanges', index);
         setdrawerState(index)
+        
     }, []);
 
     const handleSnapPress = useCallback((index) => {
@@ -149,6 +151,7 @@ function ViewProfile({ route, appState, disp_events }) {
 
     const FetchPost = () => {
         handleSnapPress(1)
+        setreportAccount(false)
         GetApp_Campaigns({
             setLoading,
             setData: setCampaigns,
@@ -257,7 +260,7 @@ function ViewProfile({ route, appState, disp_events }) {
                                                 android_ripple={{ color: Colors.secondary }}
                                                 onPress={() => {
                                                     FetchPost()
-
+                                                    setreportAccount(false)
                                                 }}
                                                 style={{
                                                     justifyContent: "center",
@@ -668,14 +671,14 @@ function ViewProfile({ route, appState, disp_events }) {
                                         flex: 1,
                                         margin: 20, textAlign: "center"
                                     }]} >
-                                        Tell us what has changed about you.
+                                        <BoldText2 text={User.name.split(" ")[0]} color="black" />, what else do you know about  <BoldText2 text={data.name} />
                                     </Text>
                                     <PrimaryButton callBack={() => {
                                         // navigation.navigate("Edit-profile");
                                         handleSnapPress(1)
                                         setreportAccount(true)
-                                    }} title="Continue"
-                                        style={{ marginBottom: 20, marginLeft: "5%" }}
+                                    }} title="Tell us"
+                                        style={{ marginBottom: 20, marginLeft: "5%", }}
                                     />
                                 </View>
                             </View>

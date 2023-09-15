@@ -11,7 +11,7 @@ import CustomBottomDrawer from '../../components/bottomDrawer';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { AddDonation, FetchAllDonationsByID, } from '../models';
 import { AddUser_meta } from '../../user/models/user-model';
-import { BoldText2 } from '../../components/text';
+import { BoldText2, BoldText3 } from '../../components/text';
 import { GetApp_Campaigns, MakeDonationController } from '../../events/controllers/campaign-contrller';
 
 const Colors = Color()
@@ -299,16 +299,41 @@ export function ViewCampaignCard({
                         </Text>
 
                     </View>
-                    <PrimaryButton title="Support campaign"
-                        style={{
-                            width: "90%",
-                            marginLeft: "5%",
-                            marginVertical: 30
-                        }}
-                        callBack={() => {
-                            handleSnapPress(1)
-                        }}
-                    />
+
+                    {/* check if who is viewing is the poster */}
+                    {data && data.meta.posterPhone != User.phone ? <>
+                        <PrimaryButton title="Support campaign"
+                            style={{
+                                width: "90%",
+                                marginLeft: "5%",
+                                marginVertical: 30
+                            }}
+                            callBack={() => {
+                                handleSnapPress(1)
+                            }}
+                        />
+                    </> : <>
+
+                        <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }} >
+                            <BoldText3 text={data && " ₦" + NumberWithCommas(getTotalAmount(data.donations))} />
+                            <PrimaryButton title="Withdraw funds"
+                                style={{
+                                    width: "90%",
+                                    // marginLeft: "5%",
+                                    marginBottom: 30,
+                                    backgroundColor: getTotalAmount(data.donations) < 5000 ? Colors.secondary : Colors.primary
+                                }}
+                                callBack={() => {
+                                    if (getTotalAmount(data.donations) > 4999) {
+
+                                        handleSnapPress(1)
+                                    }
+                                }}
+                            />
+                        </View>
+
+                    </>}
+
                 </View>
             </ScrollView>
 

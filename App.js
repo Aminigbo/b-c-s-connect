@@ -26,6 +26,7 @@ import View_event from "./src/events/pages/view-event"
 import jobApplicants from './src/job/pages/applicants-profile';
 import ViewProfile from "./src/bcs-connect/pages/user-profile"
 import { CustomMarker, CustomMarkerAlt } from './src/components/icons';
+import notifications from './src/bethel-finder/screens/notifications';
 const headerColor = '#fffdfb'
 const navTheme = DefaultTheme;
 
@@ -143,7 +144,7 @@ function App() {
 
                     // }} size={20} icon={faMapMarkerAlt} />}
                   }} size={20} icon={faUserGroup} />
-                  <Text>Donations</Text>
+                  <Text>BCS-Connect</Text>
                 </View>
               }
 
@@ -279,6 +280,11 @@ function App() {
               <Stack.Screen name="Auth" component={AuthStack} options={{ header: () => null, }} />
               <Stack.Screen name="Finance" component={financeStack} options={{ header: () => null }} />
               <Stack.Screen name="Profile" component={ProfileStack} options={{ header: () => null }} />
+              <Stack.Screen name="Notifications" component={notifications} options={{
+                headerStyle: {
+                  backgroundColor: Colors.light
+                }
+              }} />
               <Stack.Screen name="User-Profile" component={ViewProfile} options={{ header: () => null }} />
               <Stack.Screen name="View-event" component={View_event} options={{
                 title: "",

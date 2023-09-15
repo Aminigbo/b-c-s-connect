@@ -8,6 +8,7 @@ import Svg, { Path, Defs, Pattern, Use, Image, Ellipse, } from "react-native-svg
 import { isAuth } from "../controllers/auth/authController";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { Color } from "./theme";
+import { BoldText1, BoldText2, BoldText3 } from "./text";
 
 // ===========================================================
 const iconSize = 22;
@@ -18,16 +19,19 @@ export function NotificationIcon(params) {
     const navigation = useNavigation();
     return (
         <Pressable onPress={() => {
-            //  navigation.pop() 
+            navigation.navigate("Notifications")
         }}
             style={{
-                // backgroundColor: "red",
+                backgroundColor: "white",
                 padding: 10,
-                // marginRight: 10,
+                marginRight: 20,
+                borderRadius: 20,
+                position: "relative"
                 // flex: 1
             }}
         >
-            <FontAwesomeIcon size={iconSize} style={style.icons} icon={faBell} />
+            <BoldText2 text="3" color="crimson" style={{ position: "absolute", right: 6, top: 2, color: "white" }} />
+            <FontAwesomeIcon size={15} style={[style.icons,]} icon={faBell} />
         </Pressable>
     )
 }
@@ -63,13 +67,14 @@ export function OpenDrawer(params) {
     return (
         <Pressable onPress={() => { openDrawer() }}
             style={[{
-                // backgroundColor: "red",
+                backgroundColor: "white",
                 padding: 10,
                 marginLeft: 10,
+                borderRadius: 20,
                 // flex: 1
             }, params.style]}
         >
-            <FontAwesomeIcon size={iconSize} style={style.icons} icon={faBars} />
+            <FontAwesomeIcon size={15} style={style.icons} icon={faBars} />
         </Pressable>
     )
 }
@@ -88,13 +93,14 @@ export function AccountIcon() {
                 // })
             }}
             style={{
-                // backgroundColor: "red",
+                backgroundColor: "white",
                 padding: 10,
-                marginRight: 20,
+                borderRadius: 20,
+                // marginRight: 20,
                 // flex: 1
             }}
         >
-            <FontAwesomeIcon size={28} style={style.icons} icon={faUserCircle} />
+            <FontAwesomeIcon size={15} style={style.icons} icon={faUserCircle} />
         </Pressable>
     )
 }

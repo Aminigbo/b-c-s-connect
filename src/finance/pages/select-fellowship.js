@@ -143,7 +143,7 @@ function FinanceHistory({ route, appState, disp_Fell_to_pay }) {
                         justifyContent: "space-between",
                         alignContent: "space-around",
                         // marginTop: 10,
-                        // padding: 7
+                        padding: 7,
                         // alignItems: "center"
 
                     }} >

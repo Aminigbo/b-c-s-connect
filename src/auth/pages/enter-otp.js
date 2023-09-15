@@ -36,43 +36,29 @@ function EnterOTP({ navigation, disp_user, appState, disp_surprise, route }) {
         setText(value);
     }, [setText]);
 
-    const [date, setDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [checked, setChecked] = useState('first');
-    const showDatepicker = () => {
-        setShowDatePicker(true);
-    };
+    const [otp, setOTP] = useState("")
 
     const [data, setData] = useState({});
     const [authReroute, setAuthReroute] = useState({});
     const [loading, setLoading] = useState(false)
 
-    const onDateChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setShowDatePicker(false);
-        setData({ ...data, date: currentDate })
-    };
+
 
     useEffect(() => {
-        console.log("Auth screen")
-        if (route.params) {
-            if (route.params.data && route.params.data.Auth) {
-                setAuthReroute({
-                    data: route.params.data.CartItems,
-                    route: "Checkout"
-                })
+
+        const unsubscribe = navigation.addListener('focus', async () => {
+            if (route.params) {
+                console.log(route.params)
+                setData(route.params)
             } else {
-                setAuthReroute({
-                    data: {},
-                    route: "Home"
-                })
+                console.log("No data")
             }
 
-            console.log(route.params.data)
-        } else {
-            console.log("No data")
-        }
-    }, [])
+        });
+
+        return unsubscribe;
+
+    }, [navigation])
 
     const STYLES = ['default', 'dark-content', 'light-content'];
     const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -156,7 +142,8 @@ function EnterOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                         {/* <Text style={{ marginTop: 40, marginBottom: 12, color: Colors.dark }}>Provide phone number</Text> */}
                         <TextInput
                             autoFocus
-                            // onChangeText={(value) => setData({ ...data, email: value })}
+                            value={otp}
+                            onChangeText={(value) => setOTP(value)}
                             style={{ width: "100%", marginTop: 30, }}
                             textColor={Colors.dark}
                             theme={{
@@ -173,7 +160,13 @@ function EnterOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                         />
                     </View>
 
-                    <PrimaryButton style={{ width: "100%", textTransform: 'uppercase', }} callBack={() => { navigation.navigate("RESET PWD") }} title={`Verify OTP `} />
+                    <PrimaryButton style={{ width: "100%", textTransform: 'uppercase', }} callBack={() => {
+                        if (data.OTP != otp) {
+                            Alert.alert("Error", "Please enter the valid OTP sent to you.")
+                        } else {
+                            navigation.replace("RESET PWD", {User: data.User })
+                        }
+                    }} title={`Verify OTP `} />
                 </View>
             </SafeAreaView>
         </>

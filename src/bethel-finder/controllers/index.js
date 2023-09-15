@@ -12,7 +12,7 @@ export function GetAllBethel({
                 console.log(res)
             } else {
                 setFechBethels(res.data[0].bethel)
-                console.log("Fetched bethels")
+                console.log("Fetched bethels",res.data[0].bethel)
             }
         })
 }

@@ -31,13 +31,26 @@ const Colors = Color()
 
 function ResetPWD({ navigation, disp_Login, appState, disp_surprise, route }) {
     const User = appState.User
+    const [UserData, setUser] = useState(null)
     const [data, setData] = useState({});
     const [loading, setLoading] = useState(false)
 
 
     useEffect(() => {
 
-    }, [])
+        const unsubscribe = navigation.addListener('focus', async () => {
+            if (route.params) {
+                console.log(route.params)
+                setUser(route.params)
+            } else {
+                console.log("No data")
+            }
+
+        });
+
+        return unsubscribe;
+
+    }, [navigation])
 
     const STYLES = ['default', 'dark-content', 'light-content'];
     const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -141,7 +154,7 @@ function ResetPWD({ navigation, disp_Login, appState, disp_surprise, route }) {
                             label="Re-enter password"
                         />
                     </View>
-
+                    {/* {console.log(UserData)} */}
                     <PrimaryButton
                         loading={loading}
                         style={{
@@ -149,27 +162,29 @@ function ResetPWD({ navigation, disp_Login, appState, disp_surprise, route }) {
                             textTransform: 'uppercase',
                         }}
                         callBack={() => {
-                            if (data.password != data.password2) {
+                            if (!data.password || !data.password2) {
+                                alert("Enter a valid password")
+                            }
+                            else if (data.password != data.password2) {
                                 alert("Password does not match")
                             } else if (data.password.length < 6 || data.password2.length < 6) {
                                 alert("Password should be at least 6 characters")
                             } else {
                                 setLoading(true)
                                 const payload = {
-                                    email: User.meta.email,
+                                    email: UserData.User.meta.email,
                                     password: data.password,
-                                    phone: User.phone
+                                    phone: UserData.User.phone
                                 }
                                 // PasswordUpdate(payload).then(response => {
                                 EditPassword(payload)
                                     .then(res => {
+                                        console.log(res)
                                         if (res.error == null) {
                                             disp_Login({
-                                                ...User,
+                                                ...UserData.User,
                                                 meta: {
-                                                    ...User.meta,
-                                                    finance: [],
-                                                    certification: []
+                                                    ...UserData.User.meta 
                                                 }
                                             })
                                             Alert.alert("Success", "Password updated successfully", [
@@ -187,6 +202,7 @@ function ResetPWD({ navigation, disp_Login, appState, disp_surprise, route }) {
                                         }
                                     })
                                     .catch(error => {
+                                        console.log(error)
                                         setLoading(false)
                                         alert("A network error occured")
                                     })
