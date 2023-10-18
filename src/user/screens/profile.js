@@ -320,7 +320,7 @@ function Profile({ route, appState, disp_user }) {
                                         <Text style={[Style.boldText2, {
                                             marginTop: 10
                                         }]} ><NameDisplay user={User} /> </Text>
-                                        <Text style={Style.Text} > <UserTitle User={User} /> </Text>
+                                        // <Text style={Style.Text} > <UserTitle User={User} /> </Text>
                                         {/* <Text style={{
                                                 textAlign: " ",
                                                 color: "grey",
