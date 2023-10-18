@@ -337,7 +337,8 @@ function Profile({ route, appState, disp_user }) {
                                         alignItems: "center",
                                         // marginVertical: 10,
                                         justifyContent: "space-around",
-                                        flex: 1
+                                        flex: 1,
+                                        display:"none"
 
                                     }} >
                                         {imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />}
