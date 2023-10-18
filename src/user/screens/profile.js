@@ -320,7 +320,7 @@ function Profile({ route, appState, disp_user }) {
                                         <Text style={[Style.boldText2, {
                                             marginTop: 10
                                         }]} ><NameDisplay user={User} /> </Text>
-                                        // <Text style={Style.Text} > <UserTitle User={User} /> </Text>
+                                        <Text style={Style.Text} > <UserTitle User={User} /> </Text>
                                         {/* <Text style={{
                                                 textAlign: " ",
                                                 color: "grey",
@@ -337,8 +337,7 @@ function Profile({ route, appState, disp_user }) {
                                         alignItems: "center",
                                         // marginVertical: 10,
                                         justifyContent: "space-around",
-                                        flex: 1,
-                                        display:"none"
+                                        flex: 1, 
 
                                     }} >
                                         {imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />}
