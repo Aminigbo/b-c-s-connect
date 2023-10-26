@@ -38,6 +38,8 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { supabase } from '../../config/supabase';
 import { UpdateUserMetaController } from '../controllers/user-controller';
 import { ManagePhoto } from '../models/user-model';
+import { BoldText1, BoldText2, BoldText3 } from '../../components/text';
+import { NumberWithCommas } from '../../utilities';
 
 const { height, width } = Dimensions.get('window');
 const Colors = Color()
@@ -56,7 +58,7 @@ function Profile({ route, appState, disp_user }) {
     const GetUser = () => {
         if (User == undefined) {
             isAuth().then(res => {
-                console.log(res)
+                // console.log(res)
                 if (res == false) return navigation.pop()
                 setUserState(res)
             })
@@ -67,7 +69,7 @@ function Profile({ route, appState, disp_user }) {
     const AllSurprises = appState.SurpriseState;
     useEffect(() => {
 
-        
+
 
     }, [navigation, drawerState])
 
@@ -136,7 +138,7 @@ function Profile({ route, appState, disp_user }) {
             } else if (response.error) {
 
             } else if (response.customButton) {
-                console.log(response.customButton)
+                // console.log(response.customButton)
             } else {
                 const source = {
                     uri: response.assets[0].uri
@@ -185,7 +187,7 @@ function Profile({ route, appState, disp_user }) {
                         if (res.error != null) {
                             alert("An error occured")
                             setLoading(false)
-                            console.log(res)
+                            // console.log(res)
                         } else {
 
                             // chnge the image name in the user state
@@ -202,7 +204,7 @@ function Profile({ route, appState, disp_user }) {
                                 .from("images")
                                 .remove([User.img])
                                 .then(response => {
-                                    console.log("Deleted old photo")
+                                    // console.log("Deleted old photo")
                                 })
                         }
                     })
@@ -249,7 +251,7 @@ function Profile({ route, appState, disp_user }) {
 
     return (
         <>
-            {console.log(User.meta)}
+            {/* {console.log(User.meta)} */}
             <SafeAreaView style={{ flex: 0, backgroundColor: Colors.light }}>
                 <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
@@ -281,7 +283,10 @@ function Profile({ route, appState, disp_user }) {
                                         marginHorizontal: 10, padding: 10
                                     }} >
                                         <BackIcon style={{ marginRight: 20 }} />
-                                        {/* <NotificationIcon /> */}
+                                        <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }} >
+                                            <BoldText1 style={{}} text={`Wallet : `} color="black" />
+                                            <BoldText3 style={{ marginRight: 20 }} text={`  ₦${NumberWithCommas(User.wallet)}`} color="black" />
+                                        </View>
                                     </View>
 
                                     {

@@ -31,6 +31,7 @@ import { Style } from '../../../assets/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { CreateJobs } from '../controllers/job-controller';
 import { CurrentDate } from '../../utilities';
+import { BoldText2 } from '../../components/text';
 // import { monthNames } from '../../utilities';
 // import RNPaystack from 'react-native-paystack'; 
 
@@ -65,7 +66,7 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                         }
                     } else {
                         let ActiveJobs = res.data.filter(e => new Date(e.meta.deadline) > new Date())
-                        console.log(ActiveJobs.length)
+                        // console.log(ActiveJobs.length)
                         disp_Jobs(ActiveJobs)
                         setJobState(ActiveJobs)
                         setModalVisible(false)
@@ -218,28 +219,42 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                     </Text>
                 </Pressable>
 
+                {User.role.verified == true &&
+                    <TouchableOpacity
+                        onPress={() => { setModalVisible(true) }}
+                        style={{
+                            justifyContent: "center",
+                            flex: 1,
+                            alignItems: "flex-end",
+                            // paddingRight: 20,
+                        }} >
+                        <FontAwesomeIcon style={{
+                            color: Colors.primary,
+
+                        }} size={23} icon={faPlusSquare} />
+                    </TouchableOpacity>
+                }
 
 
-                <TouchableOpacity
-                    onPress={() => { setModalVisible(true) }}
+                <Pressable
+                    onPress={() => {
+                        navigation.push("my-job")
+                    }}
                     style={{
                         justifyContent: "center",
                         flex: 1,
                         alignItems: "flex-end",
-                        paddingRight: 20,
+                        marginRight: 25
                     }} >
-                    <FontAwesomeIcon style={{
-                        color: Colors.primary,
-
-                    }} size={23} icon={faPlusSquare} />
-                </TouchableOpacity>
+                    <BoldText2 text="My jobs" color={Colors.primary} />
+                </Pressable>
 
             </View >
 
 
             {loading == true &&
                 <View style={{
-                    marginTop: 23,
+                    marginTop: 53,
                     position: "absolute",
                     top: 1,
                     zIndex: 2100,
@@ -344,7 +359,7 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                                                     marginLeft: 10
                                                     // margin: 20,
                                                 }}
-                                                    icon={step == "1" ? faTimes : faArrowLeftLong} />
+                                                    icon={step == "1" && faTimes} />
                                             </> :
                                             <>
                                                 <FontAwesomeIcon size={19} style={{
@@ -354,8 +369,8 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                                                     marginRight: 10
                                                     // margin: 20,
                                                 }}
-                                                    icon={step == "1" ? faTimes : faArrowLeftLong} />
-                                                <Text style={[Style.TextLink]} >Back</Text>
+                                                    icon={step == "1" && faTimes} />
+                                                <Text style={[Style.TextLink, { marginRight: 20 }]} >Back</Text>
                                             </>
                                     }
 
@@ -569,10 +584,12 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                                         <TextInput
                                             // autoFocus
                                             keyboardType="numeric"
-                                            onChangeText={(value) => setselectedValue({
-                                                ...selectedValue,
-                                                salary: value
-                                            })}
+                                            onChangeText={(value) => {
+                                                setselectedValue({
+                                                    ...selectedValue,
+                                                    salary: value
+                                                })
+                                            }}
                                             style={{ width: "100%", marginTop: 20, }}
                                             textColor={Colors.dark}
                                             theme={{
@@ -592,10 +609,12 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                                         <TextInput
                                             // autoFocus
                                             value={selectedValue.description}
-                                            onChangeText={(value) => setselectedValue({
-                                                ...selectedValue,
-                                                description: value
-                                            })}
+                                            onChangeText={(value) => {
+                                                setselectedValue({
+                                                    ...selectedValue,
+                                                    description: value
+                                                })
+                                            }}
                                             style={{ width: "100%", height: 100, marginTop: 20, }}
                                             textColor={Colors.dark}
                                             theme={{
@@ -623,7 +642,8 @@ function Job({ navigation, disp_user, appState, disp_surprise, route, disp_Jobs,
                         <PrimaryButton style={{
                             width: "100%",
                             textTransform: 'uppercase',
-                            marginBottom: 20
+                            marginBottom: 20,
+                            marginTop: 40
                         }} callBack={() => {
                             if (step == "1") {
                                 setStep("2")

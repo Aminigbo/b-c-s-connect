@@ -6,7 +6,7 @@ export function HandleFPN(navigation) {
 
 
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-        console.log('Background Message:', remoteMessage);
+        // console.log('Background Message:', remoteMessage);
     });
 
 
@@ -40,14 +40,14 @@ export function HandleFPN(navigation) {
         .then((remoteMessage) => {
             if (remoteMessage) {
                 const notificationType = remoteMessage;
-                console.log(" .I have migrated()", notificationType)
+                // console.log(" .I have migrated()", notificationType)
                 // navigation.navigate('Jobs');
             }
         });
 
     PushNotification.configure({
         onNotification: function (notification) {
-            console.log("Notification data", notification)
+            // console.log("Notification data", notification)
             const clicked = notification.userInteraction;
             const clickedNotification = notification;
             if (clicked) {
@@ -62,30 +62,30 @@ export function HandleFPN(navigation) {
 
                 if (notificationType == "EVENT") { navigation.navigate("View-event", { id: notificationID }) } // view event
 
-                console.log("Notification type", notificationType)
-                console.log("id", notificationID)
+                // console.log("Notification type", notificationType)
+                // console.log("id", notificationID)
 
 
             } else {
                 if (notification.foreground == true) {
-                    console.log("Recieved notification in foregroundr")
+                    // console.log("Recieved notification in foregroundr")
                     // Vibrate the device for 500 milliseconds
                     Vibration.vibrate(900);
-                    PushNotification.localNotification({
-                        // largeIcon: "ic_launcher",
-                        largeIconUrl: notification.data.largeImg,
-                        smallIcon: "ic_notifications",
-                        bigText: notification.message,
-                        message: notification.message,
-                        details: { repeted: false },
-                        channelId: "channel-id",
-                        subText: notification.title,
-                        // bigLargeIcon: "ic_launcher",
-                        bigPictureUrl: notification.data.largeImg,
-                        // actions: ['Accept', 'Reject'],
-                    })
+                    // PushNotification.localNotification({
+                    //     // largeIcon: "ic_launcher",
+                    //     largeIconUrl: notification.data.largeImg,
+                    //     smallIcon: "ic_notifications",
+                    //     bigText: notification.message,
+                    //     message: notification.message,
+                    //     details: { repeted: false },
+                    //     channelId: "channel-id",
+                    //     subText: notification.title,
+                    //     // bigLargeIcon: "ic_launcher",
+                    //     bigPictureUrl: notification.data.largeImg,
+                    //     // actions: ['Accept', 'Reject'],
+                    // })
                 } else {
-                    console.log("Recieved notification in background")
+                    // console.log("Recieved notification in background")
                     PushNotification.localNotification({
                         // largeIcon: "ic_launcher",
                         largeIconUrl: notification.data.largeImg,

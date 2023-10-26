@@ -13,9 +13,55 @@ import {
   FELLOWSHIPTOPAY,
   STATE,
   CONNECT_USER,
-  LOCATION
+  LOCATION,
+  NOTIFICATION,
+  SCANEUSER,
+  AUTHENTICATIONFELLOWSHIP,
+  MEETINGS,
+  BETHELS,
+  DELTAS,
+  ENROUTE
 } from "../state/types";
 
+
+export const Scan_User = (payload) => {
+  return {
+    type: SCANEUSER,
+    payload
+  }
+}
+export const EnrouteDispath = (payload) => {
+  return {
+    type: ENROUTE,
+    payload
+  }
+}
+export const DeltaDispatch = (payload) => {
+  return {
+    type: DELTAS,
+    payload
+  }
+}
+export const AllBethels = (payload) => {
+  return {
+    type: BETHELS,
+    payload
+  }
+}
+
+export const DispMeeting = (payload) => {
+  return {
+    type: MEETINGS,
+    payload
+  }
+}
+
+export const Authenticating_fellowship = (payload) => {
+  return {
+    type: AUTHENTICATIONFELLOWSHIP,
+    payload
+  }
+}
 
 export const Items = (payload) => {
   return {
@@ -121,6 +167,13 @@ export const CartItems = (payload) => {
 export const MyLocation = (payload) => {
   return {
     type: LOCATION,
+    payload
+  }
+}
+
+export const myNotification = (payload) => {
+  return {
+    type: NOTIFICATION,
     payload
   }
 }

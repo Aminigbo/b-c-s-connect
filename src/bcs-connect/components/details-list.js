@@ -12,7 +12,7 @@ import { Style } from '../../../assets/styles';
 
 const Colors = Color()
 export function Details({
-    data, icon, add, add_callback
+    data, icon, add, add_callback, faAsterisk
 }) {
     return (
         <Pressable
@@ -37,11 +37,22 @@ export function Details({
                 <FontAwesomeIcon size={16} style={{
                     flex: 1,
                     color: Colors.primary,
-                    opacity: 0.8
-                    // margin: 20,
+                    opacity: 0.8,
+                    // marginTop: 2,
                 }}
                     icon={icon} />
-                <Text style={[Style.Text, { marginLeft: 10, marginTop: -2 }]} >{data}</Text>
+                {faAsterisk ? <>
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, marginLeft: 10,  }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <FontAwesomeIcon size={9} style={{ flex: 1, color: Colors.black, opacity: 0.8, marginTop: 3, }} icon={faAsterisk} />
+                    <Text style={[Style.Text, {marginTop: -2 }]} >{data}</Text>
+                </> : <Text style={[Style.Text, { marginLeft: 10, marginTop: -2 }]} >{data}</Text>}
+
             </View>
 
             <Pressable

@@ -26,7 +26,7 @@ export function LoginService({
 
     fetch(`${base_URL}/auth/login`, requestOptions)
         .then(response => response.text())
-        .then(result => {
+        .then(result => { 
             const data = JSON.parse(result)
             if (data.success == true) {
                 let User = data;
@@ -50,7 +50,7 @@ export function LoginService({
         })
         .catch(error => {
             setLoading(false)
-            Alert.alert("Error", data.message,
+            Alert.alert("Error", "A network error occured",
                 [{
                     text: "Close",
                 }]

@@ -7,117 +7,41 @@ import { Style } from '../../../assets/styles';
 import { Divider, Avatar } from 'react-native-paper';
 import { NumberWithCommas } from '../../utilities';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { BoldText1, BoldText2, BoldText3 } from '../../components/text';
 const Colors = Color()
 export function CampaignCard({
-    data, navigation
+    data, navigation, type
 }) {
     return (
         <Pressable
             onPress={() => {
-                navigation.navigate("View-job", {id:data.id })
-                
-            }}
-            style={styles.container} >
+                navigation.navigate("View-job", { id: data.id })
+            }} style={styles.container} >
+
             <View style={{
                 display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
+                // flexDirection: "row",
+                // justifyContent: "space-between",
                 marginBottom: 5
             }} >
+                {data && data.meta.employerType == 'Me' && <>
 
-                <Text style={[Style.boldText, {
-                    flex: 2, marginLeft: 4
-                }]} >
-                    {data.meta.title}
-                </Text>
+                    <BoldText3 text={`${data.poster} is hiring a ${data.meta.title}`} color="black" />
+                </>}
+
+                {data && data.meta.employerType == 'Private Individual' && <>
+                    <BoldText3 text={`${data.meta.company}  is hiring a ${data.meta.title}`} color="black" />
+                </>}
+
+                {data && data.meta.employerType == 'Registered Business' && <>
+                    <BoldText3 text={`${data.meta.company}  is hiring a ${data.meta.title}`} color="black" />
+                </>}
+
+                {/* <BoldText2 text={data.meta.title} color="black" /> */}
+
             </View>
 
 
-            {data && data.meta.employerType == 'Me' && <>
-                {/* <View style={{
-                    // display: "flex",
-                    flexDirection: "row",
-                    // justifyContent: "flex-start",
-                    marginTop: 10
-                }} >
-                    <FontAwesomeIcon size={15} style={{
-                        flex: 0.4,
-                        color:Colors.primary,
-                        opacity: 0.8,
-                        // marginTop: 2,
-                    }}
-                        icon={faUser} />
-                    <Text style={{
-                        fontSize: 15, color: Colors.dark,
-                        flex: 2,
-                        marginLeft: 7
-                    }} >
-                       Employer -
-                    </Text>
-
-                    <TouchableOpacity onPress={() => {
-                        console.log(data)
-                    }} >
-                        <Text style={[Style.TextLink, { fontSize: 16, }]}>
-                            {data.poster}
-
-                        </Text>
-                    </TouchableOpacity>
-                </View> */}
-
-                <View style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    // justifyContent: "space-between",
-                    marginTop: 10
-                }} >
-                    <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
-                        Employer:
-
-                    </Text>
-                    <TouchableOpacity onPress={() => {
-                        console.log(data)
-                    }} >
-                        <Text style={[Style.boldText2, { color: Colors.primary, fontSize: 16, marginLeft: 10 }]}>
-                            {data.poster}
-
-                        </Text>
-                    </TouchableOpacity>
-
-                </View>
-            </>}
-
-            {data && data.meta.employerType == 'Private Individual' && <>
-                <View style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    // justifyContent: "space-between",
-                    marginTop: 10
-                }} >
-                    <Text style={[Style.LabelText, { color: Colors.grey, fontSize: 16, }]}>
-                        Employer:
-
-                    </Text>
-                    <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, marginLeft: 10 }]}>
-                        {data.meta.company}
-
-                    </Text>
-                </View>
-            </>}
-            {data && data.meta.employerType == 'Registered Business' && <>
-                <View style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginTop: 2
-                }} >
-
-                    <Text style={[Style.boldText2, { color: Colors.grey, fontSize: 16, }]}>
-                        @ {data.meta.company}
-
-                    </Text>
-                </View>
-            </>}
 
 
 
@@ -126,7 +50,7 @@ export function CampaignCard({
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                marginTop: 16
+                marginTop: 6
             }} >
                 <FontAwesomeIcon size={15} style={{
                     flex: 0.4,
@@ -172,7 +96,10 @@ export function CampaignCard({
                 <Text style={[Style.boldText]} >₦{NumberWithCommas(data.meta.salary)}</Text>
             </View>
 
-            <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+            <BoldText2 text={`Description`} color="black" style={{ marginTop: 20, marginBottom: -20 }} />
+            <BoldText1 text={`${data.meta.description.slice(0, 200)} ${data.meta.description.length > 200 && "........"}`} color="black" />
+
+            <Divider style={{ marginTop: 5, marginBottom: 15 }} />
             <View style={{
                 // display: "flex",
                 flexDirection: "row",

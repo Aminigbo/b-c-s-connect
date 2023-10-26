@@ -79,12 +79,12 @@ export default function JobStack({ appState }) {
             }} />
 
             {/* QR=============== */}
-            <Stack.Screen name='View-job' component={ViewJobs} options={{
+            {/* <Stack.Screen name='View-job' component={ViewJobs} options={{
                 title: "",
                 headerStyle: {
                     backgroundColor: Colors.light
                 }
-            }} />
+            }} /> */}
 
             <Stack.Screen name='Applicants' component={JobApplicants} options={{
                 title: "Apply",

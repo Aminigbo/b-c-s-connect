@@ -184,11 +184,12 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                             disabled
                             // onChangeText={(value) => setData({ ...data, email: value })}
                             style={{ width: "100%", marginTop: 20, }}
-                            textColor={Colors.dark}
+                            
+                            // textColor="grey"
                             theme={{
                                 colors: {
-                                    primary: Colors.dark,
-                                    background: 'white',
+                                    // primary: "grey",
+                                    background: 'grey',
                                     placeholder: "red",
                                 },
                                 roundness: 8,
@@ -197,7 +198,7 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                             multiline
                             label={`********${User && User.phone && User.phone.slice(-4)}`}
                         />
-                        <Text>Your phone number ending with  <BoldText2 text={User && User.phone && User.phone.slice(-4)} /> </Text>
+                        <Text style={{ color: "grey" }}>Your phone number ending with  <BoldText2 color="grey" text={User && User.phone && User.phone.slice(-4)} /> </Text>
                     </View>
 
                     <PrimaryButton
@@ -208,7 +209,7 @@ function SendOTP({ navigation, disp_user, appState, disp_surprise, route }) {
                                 method: 'GET',
                                 redirect: 'follow'
                             };
-                            let phone = "0" + User.phone;
+                            let phone = `0${User.phone}`;
                             // let phone = "09167781306";
                             const OTP = GenerateOTP(10101, 99191);
                             let message = `Use the OTP ${OTP} to complete your password reset process. Do not disclose this pin to anyone.`

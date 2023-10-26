@@ -21,6 +21,7 @@ export function DonationCard({
     user
 
 }) {
+
     return (
         <Pressable
 
@@ -136,16 +137,24 @@ export function DonationCard({
                                 // height: 200,
                                 // backgroundColor: "green"
                             }}>
-                            <Image
-                                style={[styles.imageBackground, {
-                                    width: "100%",
-                                    // height: "100%",
-                                    aspectRatio: data.meta.Img.width / data.meta.Img.height,
-                                    marginTop: 10,
-                                    borderRadius: 2,
-                                }]}
-                                src={`${ImgBaseUrl}/${data.meta.Img.uri}`}
-                                resizeMode={'cover'} />
+
+
+                            <View style={{ aspectRatio: data.meta.Img.width / data.meta.Img.height, backgroundColor: "lightgrey",opacity:1 }}>
+
+                                <Image
+                                    style={[styles.imageBackground, {
+                                        width: "100%",
+                                        // height: "100%",
+                                        aspectRatio: data.meta.Img.width / data.meta.Img.height,
+                                        // marginTop: 10,
+                                        borderRadius: 2,
+                                        zIndex:1000
+                                    }]}
+                                    src={`${ImgBaseUrl}/${data.meta.Img.uri}`}
+                                    resizeMode={'cover'} />
+
+                            </View>
+
                         </Pressable>
                     }
                     <View style={{

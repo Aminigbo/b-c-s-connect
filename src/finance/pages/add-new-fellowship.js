@@ -163,105 +163,115 @@ function AddNewFellowship({ route, appState, disp_user, disp_Fellowship }) {
                                             onboardfellowship: e.label,
                                             onboardstate: appState.User_State
                                         }
-                                        onboardedStates(payload)
-                                            .then(res => {
-                                                if (res.error != null) {
-                                                    setloading(false)
-                                                    Alert.alert("Server unavailable", "Make sure you are connected to the internet.")
-                                                } else {
-                                                    if (!User) {
-                                                        if (res.data.length < 1) {
-                                                            setloading(false)
-                                                            alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
-                                                        } else {
-                                                            console.log(res)
-                                                            disp_Fellowship({
-                                                                fellowship: res.data[0].fellowship,
-                                                                id: e.id,
-                                                                object:res.data[0]
-                                                            })
-                                                            setloading(false)
-                                                            navigation.navigate("Signup")
+                                        disp_Fellowship({
+                                            fellowship: e.label,
+                                            // fellowship: res.data[0].fellowship,
+                                            // id: e.id,
+                                            // object:res.data[0]
+                                        })
+                                        setloading(false)
+                                        navigation.navigate("Signup")
+                                        
+                                        // onboardedStates(payload)
+                                        //     .then(res => {
+                                        //         if (res.error != null) {
+                                        //             setloading(false)
+                                        //             Alert.alert("Server unavailable", "Make sure you are connected to the internet.")
+                                        //         } else {
+                                        //             if (!User) {
+                                        //                 if (res.data.length < 1) {
+                                        //                     setloading(false)
+                                        //                     alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
+                                        //                 } else {
+                                        //                     console.log(res)
+                                        //                     disp_Fellowship({
+                                        //                         fellowship: e.label,
+                                        //                         // fellowship: res.data[0].fellowship,
+                                        //                         // id: e.id,
+                                        //                         // object:res.data[0]
+                                        //                     })
+                                        //                     setloading(false)
+                                        //                     navigation.navigate("Signup")
 
-                                                        }
-                                                    } else {
-                                                        if (res.data.length > 0) {
-                                                            // navigation.pop(1)
-                                                            // AsyncStorage.setItem("FELLOWSHIP", JSON.stringify(res.data[0]))
-                                                            // console.log("Good to go")
+                                        //                 }
+                                        //             } else {
+                                        //                 if (res.data.length > 0) {
+                                        //                     // navigation.pop(1)
+                                        //                     // AsyncStorage.setItem("FELLOWSHIP", JSON.stringify(res.data[0]))
+                                        //                     // console.log("Good to go")
 
-                                                            let newData = {
-                                                                id: e.id,
-                                                                fellowship: e.label,
-                                                                member: true,
-                                                                approved: false,
-                                                                Dues: DuesMonths(),
-                                                                Registration: RegYears()
-                                                            }
-                                                            // let position = User.fellowship.findIndex(i => i.id == e.id)
-                                                            let Filter = User.fellowship.filter(i => i.id == e.id)
-
-
-                                                            if (Filter.length > 0) {
-                                                                setloading(false)
-                                                                Alert.alert("Sorry", `You are already a member of  ${e.label}  ${User.state},`, [
-                                                                    {
-                                                                        text: "Ok", onPress: () => {
-                                                                            // navigation.pop(1)
-                                                                        }
-                                                                    }
-                                                                ])
-                                                            } else {
-                                                                User.fellowship.push(newData)
-                                                                const payload = {
-                                                                    data: User.fellowship,
-                                                                    user: User.phone
-                                                                }
-                                                                // setloading(false)
-
-                                                                AddFellowship(payload)
-                                                                    .then(res => {
-                                                                        setloading(false)
-                                                                        if (res.error == null) {
-                                                                            // AsyncStorage.setItem("FELLOWSHIP", JSON.stringify(res.data[0]))
-                                                                            // setsuccess(true)
-                                                                            disp_user({
-                                                                                ...User,
-                                                                                fellowship: User.fellowship
-                                                                            })
-
-                                                                            Alert.alert("Success", `You have requested to join ${e.label}  ${appState.User_State}, An admin will review your request as soon as possible`, [
-                                                                                {
-                                                                                    text: "Ok", onPress: () => {
-                                                                                        navigation.pop(1)
-                                                                                    }
-                                                                                }
-                                                                            ])
-                                                                        } else {
-                                                                            setloading(false)
-                                                                            alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
-                                                                        }
-                                                                    })
+                                        //                     let newData = {
+                                        //                         id: e.id,
+                                        //                         fellowship: e.label,
+                                        //                         member: true,
+                                        //                         approved: false,
+                                        //                         Dues: DuesMonths(),
+                                        //                         Registration: RegYears()
+                                        //                     }
+                                        //                     // let position = User.fellowship.findIndex(i => i.id == e.id)
+                                        //                     let Filter = User.fellowship.filter(i => i.id == e.id)
 
 
-                                                            }
-                                                            // User.fellowship.splice(position, 1, newData) 
+                                        //                     if (Filter.length > 0) {
+                                        //                         setloading(false)
+                                        //                         Alert.alert("Sorry", `You are already a member of  ${e.label}  ${User.state},`, [
+                                        //                             {
+                                        //                                 text: "Ok", onPress: () => {
+                                        //                                     // navigation.pop(1)
+                                        //                                 }
+                                        //                             }
+                                        //                         ])
+                                        //                     } else {
+                                        //                         User.fellowship.push(newData)
+                                        //                         const payload = {
+                                        //                             data: User.fellowship,
+                                        //                             user: User.phone
+                                        //                         }
+                                        //                         // setloading(false)
+
+                                        //                         AddFellowship(payload)
+                                        //                             .then(res => {
+                                        //                                 setloading(false)
+                                        //                                 if (res.error == null) {
+                                        //                                     // AsyncStorage.setItem("FELLOWSHIP", JSON.stringify(res.data[0]))
+                                        //                                     // setsuccess(true)
+                                        //                                     disp_user({
+                                        //                                         ...User,
+                                        //                                         fellowship: User.fellowship
+                                        //                                     })
+
+                                        //                                     Alert.alert("Success", `You have requested to join ${e.label}  ${appState.User_State}, An admin will review your request as soon as possible`, [
+                                        //                                         {
+                                        //                                             text: "Ok", onPress: () => {
+                                        //                                                 navigation.pop(1)
+                                        //                                             }
+                                        //                                         }
+                                        //                                     ])
+                                        //                                 } else {
+                                        //                                     setloading(false)
+                                        //                                     alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
+                                        //                                 }
+                                        //                             })
+
+
+                                        //                     }
+                                        //                     // User.fellowship.splice(position, 1, newData) 
 
 
 
-                                                        } else {
-                                                            setloading(false)
-                                                            alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
-                                                        }
-                                                    }
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.log(error)
-                                                console.log("User===", User)
-                                                setloading(false)
-                                                alert("An error occured")
-                                            })
+                                        //                 } else {
+                                        //                     setloading(false)
+                                        //                     alert(`${e.label}  ${appState.User_State} is yet to join our innovative family. You'll be the first to know as soon as the Fellowship joins the family.`)
+                                        //                 }
+                                        //             }
+                                        //         }
+                                        //     })
+                                        //     .catch(error => {
+                                        //         console.log(error)
+                                        //         console.log("User===", User)
+                                        //         setloading(false)
+                                        //         alert("An error occured")
+                                        //     })
 
                                     }}
                                     style={{

@@ -9,7 +9,7 @@ export const PickPhoto = ({
     handleSnapPress,
     Source
 }) => {
-    console.log(Source)
+    // console.log(Source)
     setpreviewDPchnage({
         status: true
     })
@@ -35,7 +35,7 @@ export const PickPhoto = ({
         } else if (response.error) {
 
         } else if (response.customButton) {
-            console.log(response.customButton)
+            // console.log(response.customButton)
         } else {
 
             const fileExt = response.assets[0].uri.substring(response.assets[0].uri.lastIndexOf(".") + 1);

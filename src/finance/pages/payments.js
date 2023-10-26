@@ -3,7 +3,7 @@ import {
     View,
     Text,
     Pressable, Image, Dimensions, Alert,
-    StatusBar, ActivityIndicator
+    StatusBar, ActivityIndicator, Vibration
 } from 'react-native';
 import { Divider, Avatar } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
@@ -18,7 +18,7 @@ import { faCalendar, faEdit, faEye } from '@fortawesome/free-solid-svg-icons';
 import { Logo } from '../../components/icons';
 import { PrimaryButton } from '../../components/buttons/primary';
 import { Color } from '../../components/theme';
-import { CustomLogin, SaveMetadata, fetchMetadata, localstorageSaveUserMedata, signinService, signupService } from '../../controllers/auth/authController';
+import { CustomLogin, SaveMetadata, fetchMetadata, localstorageSaveUserMedata, signinService, signupService, } from '../../controllers/auth/authController';
 import { Loader } from '../../components/loader';
 import { connect } from 'react-redux';
 import { surprise_state, user_state } from '../../redux';
@@ -27,6 +27,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Style } from '../../../assets/styles';
 import { CurrentDate, CurrentTime, NumberWithCommas } from '../../utilities';
 import { AddUser_meta } from '../../user/models/user-model';
+import { BoldText2 } from '../../components/text';
+import { Paystack } from "react-native-paystack-webview";
 // import { monthNames } from '../../utilities';
 // import RNPaystack from 'react-native-paystack'; 
 
@@ -39,6 +41,7 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
     const Fellow_To_Pay = appState.FellowshipToPay
     const [gender, setGender] = useState('');
     const { height } = Dimensions.get('window');
+    const [ToPay, setToPay] = useState(false)
     const handleTextChange = useCallback((value) => {
         setText(value);
     }, [setText]);
@@ -62,6 +65,7 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
 
     const [PageState, setPageState] = useState("")
     const [remote, setRemote] = useState("")
+    const [amount, setamount] = useState()
 
     const [currentFellowship, setFellowship] = useState()
     const [selectedValue, setselectedValue] = useState(null)
@@ -136,6 +140,9 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
     let currentYear = new Date().getFullYear()
 
 
+
+    let monthCount = FellowshipToPay && FellowshipToPay.Dues.filter(e => e.picked == true)
+    let yearCount = FellowshipToPay && FellowshipToPay.Registration.filter(e => e.picked == true)
     const selectYear = (data) => {
         // console.log(data)
         let select = FellowshipToPay.Registration.filter(e => e.name == data.name)[0]
@@ -179,10 +186,157 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
         setRemote(Date.now())
     }
 
+    function SaveRegPay() {
+        let ExactFelowship = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0];
+        let RegOBJECT = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0].Registration
+        for (let i = 0; i < yearCount.length; i++) {
+            const element = yearCount[i];
+            let index = RegOBJECT.findIndex(e => e.name == element.name)
+
+            let newSelect = {
+                ...element,
+                picked: false,
+                paid: true
+            }
+
+            // dispatch to user state 
+            console.log(newSelect)
+            RegOBJECT.splice(index, 1, newSelect)
+        }
+
+        //get the index of the exact fellowship
+        let ExactFelowshipIndex = User.fellowship.findIndex(e => e.fellowship == ExactFelowship.fellowship)
+
+        //replace the exact fellowship with the modified object
+        User.fellowship.splice(ExactFelowshipIndex, 1, ExactFelowship)
+
+        // dispatch back User object to redux state
+        disp_user({  // dispatch to user state
+            ...User,
+            fellowship: User.fellowship
+        })
+
+        let newFinanceRecord = {
+            type: "DUES/REG",
+            title: "Registration",
+            time: CurrentTime(),
+            date: CurrentDate(),
+            data: {
+                meta: {
+                    Years: yearCount
+                },
+                amount: Fellow_To_Pay.config.registeration * yearCount.length,
+                payRef: {},
+                fellowship: Fellow_To_Pay
+            }
+        }
+
+        User.meta.finance.push(newFinanceRecord) // save to finance record 
+        const payload = {
+            data: {
+                ...User.meta,
+                finance: User.meta.finance
+            },
+            fellowship: User.fellowship,
+            user: User.phone
+        }
+
+        AddUser_meta(payload)
+            .then(res => {
+                Alert.alert("Success", `Your payment of ₦${NumberWithCommas(Fellow_To_Pay.config.registeration * yearCount.length)} was successful`, [
+                    { text: "Ok" }
+                ])
+                setLoading(false)
+                disp_user({  // dispatch to user state
+                    ...User,
+                    meta: {
+                        ...User.meta,
+                        finance: User.meta.finance
+                    }
+                })
+            })
+    }
+
+    function SaveDuesPay() {
+        let ExactFelowship = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0];
+        let RegOBJECT = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0].Dues
+        for (let i = 0; i < monthCount.length; i++) {
+            const element = monthCount[i];
+            let index = RegOBJECT.findIndex(e => e.name == element.name)
+
+            let newSelect = {
+                ...element,
+                picked: false,
+                paid: true
+            }
+
+            // dispatch to user state 
+            console.log(newSelect)
+            RegOBJECT.splice(index, 1, newSelect)
+        }
+
+        //get the index of the exact fellowship
+        let ExactFelowshipIndex = User.fellowship.findIndex(e => e.fellowship == ExactFelowship.fellowship)
+
+        //replace the exact fellowship with the modified object
+        User.fellowship.splice(ExactFelowshipIndex, 1, ExactFelowship)
+
+        // dispatch back User object to redux state
+        disp_user({  // dispatch to user state
+            ...User,
+            fellowship: User.fellowship
+        })
+
+        // console.log("Registratio object ", RegOBJECT)
+        // console.log("index of exact fellowship ", ExactFelowshipIndex)
+        // console.log("exact fellowship", ExactFelowship)
+        // console.log("All fellowships", User.fellowship[ExactFelowshipIndex].Registration)
+
+
+        let newFinanceRecord = {
+            type: "DUES/REG",
+            title: "Dues",
+            time: CurrentTime(),
+            date: CurrentDate(),
+            data: {
+                meta: {
+                    Months: monthCount
+                },
+                amount: Fellow_To_Pay.config.dues * monthCount.length,
+                payRef: {},
+                fellowship: Fellow_To_Pay
+            }
+        }
+
+        User.meta.finance.push(newFinanceRecord) // save to finance record
+
+        const payload = {
+            data: {
+                ...User.meta,
+                finance: User.meta.finance
+            },
+            fellowship: User.fellowship,
+            user: User.phone
+        }
+
+        AddUser_meta(payload)
+            .then(res => {
+                Alert.alert("Success", `Your payment of ₦${NumberWithCommas(Fellow_To_Pay.config.dues * monthCount.length)} was successful`, [
+                    { text: "Ok" }
+                ])
+                setLoading(false)
+                disp_user({  // dispatch to user state
+                    ...User,
+                    meta: {
+                        ...User.meta,
+                        finance: User.meta.finance
+                    }
+                })
+            })
+    }
 
     const ProceedToPay = () => {
-        let monthCount = FellowshipToPay.Dues.filter(e => e.picked == true)
-        let yearCount = FellowshipToPay.Registration.filter(e => e.picked == true)
+
         if (selectedValue == "Registration") {
             if (yearCount < 1) {
                 Alert.alert("Error", "Select at least one year before you can proceed to make payment",
@@ -194,79 +348,16 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                 );
             } else {
                 setLoading(true)
-                function SavePayment() {
-                    let ExactFelowship = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0];
-                    let RegOBJECT = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0].Registration
-                    for (let i = 0; i < yearCount.length; i++) {
-                        const element = yearCount[i];
-                        let index = RegOBJECT.findIndex(e => e.name == element.name)
-
-                        let newSelect = {
-                            ...element,
-                            picked: false,
-                            paid: true
-                        }
-
-                        // dispatch to user state 
-                        console.log(newSelect)
-                        RegOBJECT.splice(index, 1, newSelect)
-                    }
-
-                    //get the index of the exact fellowship
-                    let ExactFelowshipIndex = User.fellowship.findIndex(e => e.fellowship == ExactFelowship.fellowship)
-
-                    //replace the exact fellowship with the modified object
-                    User.fellowship.splice(ExactFelowshipIndex, 1, ExactFelowship)
-
-                    // dispatch back User object to redux state
-                    disp_user({  // dispatch to user state
-                        ...User,
-                        fellowship: User.fellowship
-                    })
-
-                    let newFinanceRecord = {
-                        type: "DUES/REG",
-                        title: "Registration",
-                        time: CurrentTime(),
-                        date: CurrentDate(),
-                        data: {
-                            meta: {
-                                Years: yearCount
-                            },
-                            amount: Fellow_To_Pay.config.registeration * yearCount.length,
-                            payRef: {},
-                            fellowship: Fellow_To_Pay
-                        }
-                    }
-
-                    User.meta.finance.push(newFinanceRecord) // save to finance record 
-                    const payload = {
-                        data: {
-                            ...User.meta,
-                            finance: User.meta.finance
-                        },
-                        fellowship: User.fellowship,
-                        user: User.phone
-                    }
-
-                    AddUser_meta(payload)
-                        .then(res => {
-                            Alert.alert("Success", `Your payment of ₦${NumberWithCommas(Fellow_To_Pay.config.registeration * yearCount.length)} was successful`, [
-                                { text: "Ok" }
-                            ])
-                            setLoading(false)
-                            disp_user({  // dispatch to user state
-                                ...User,
-                                meta: {
-                                    ...User.meta,
-                                    finance: User.meta.finance
-                                }
-                            })
-                        })
-                }
+                //  dues payment
+                // setToPay(true)
                 Alert.alert("Proceed", `You are about to make a payment of ₦${NumberWithCommas(Fellow_To_Pay.config.registeration * yearCount.length)} for ${yearCount.length} year(s)`, [
                     { text: "Cancel", onPress: () => setLoading(false) },
-                    { text: "Continue", onPress: () => SavePayment() }
+                    {
+                        text: "Continue", onPress: () => {
+                            setToPay(true);
+                            setamount(Fellow_To_Pay.config.registeration * yearCount.length)
+                        }
+                    }
                 ])
             }
         } else {
@@ -280,86 +371,15 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                 );
             } else {
                 setLoading(true)
-                function SavePaymentReg() {
-                    let ExactFelowship = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0];
-                    let RegOBJECT = User.fellowship.filter(e => e.fellowship == FellowshipToPay.fellowship)[0].Dues
-                    for (let i = 0; i < monthCount.length; i++) {
-                        const element = monthCount[i];
-                        let index = RegOBJECT.findIndex(e => e.name == element.name)
-
-                        let newSelect = {
-                            ...element,
-                            picked: false,
-                            paid: true
-                        }
-
-                        // dispatch to user state 
-                        console.log(newSelect)
-                        RegOBJECT.splice(index, 1, newSelect)
-                    }
-
-                    //get the index of the exact fellowship
-                    let ExactFelowshipIndex = User.fellowship.findIndex(e => e.fellowship == ExactFelowship.fellowship)
-
-                    //replace the exact fellowship with the modified object
-                    User.fellowship.splice(ExactFelowshipIndex, 1, ExactFelowship)
-
-                    // dispatch back User object to redux state
-                    disp_user({  // dispatch to user state
-                        ...User,
-                        fellowship: User.fellowship
-                    })
-
-                    // console.log("Registratio object ", RegOBJECT)
-                    // console.log("index of exact fellowship ", ExactFelowshipIndex)
-                    // console.log("exact fellowship", ExactFelowship)
-                    // console.log("All fellowships", User.fellowship[ExactFelowshipIndex].Registration)
-
-
-                    let newFinanceRecord = {
-                        type: "DUES/REG",
-                        title: "Dues",
-                        time: CurrentTime(),
-                        date: CurrentDate(),
-                        data: {
-                            meta: {
-                                Months: monthCount
-                            },
-                            amount: Fellow_To_Pay.config.dues * monthCount.length,
-                            payRef: {},
-                            fellowship: Fellow_To_Pay
-                        }
-                    }
-
-                    User.meta.finance.push(newFinanceRecord) // save to finance record
-
-                    const payload = {
-                        data: {
-                            ...User.meta,
-                            finance: User.meta.finance
-                        },
-                        fellowship: User.fellowship,
-                        user: User.phone
-                    }
-
-                    AddUser_meta(payload)
-                        .then(res => {
-                            Alert.alert("Success", `Your payment of ₦${NumberWithCommas(Fellow_To_Pay.config.dues * monthCount.length)} was successful`, [
-                                { text: "Ok" }
-                            ])
-                            setLoading(false)
-                            disp_user({  // dispatch to user state
-                                ...User,
-                                meta: {
-                                    ...User.meta,
-                                    finance: User.meta.finance
-                                }
-                            })
-                        })
-                }
+                // reg payment
                 Alert.alert("Proceed", `You are about to make a payment of ₦${NumberWithCommas(Fellow_To_Pay.config.dues * monthCount.length)} for ${monthCount.length} month(s)`, [
                     { text: "Cancel", onPress: () => setLoading(false) },
-                    { text: "Continue", onPress: () => SavePaymentReg() }
+                    {
+                        text: "Continue", onPress: () => {
+                            setToPay(true);
+                            setamount(Fellow_To_Pay.config.dues * monthCount.length)
+                        }
+                    }
                 ])
 
             }
@@ -434,6 +454,53 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                     paddingTop: 15,
                     paddingBottom: 10,
                 }} >
+
+                {ToPay &&
+                    <>
+                        <View style={{ flex: 1 }}>
+                            <Paystack
+                                paystackKey="pk_live_b04f8f73bcaf344c82b336ae754c9d9b8a1da938"
+                                amount={amount}
+                                currency="NGN"
+                                billingEmail={User.meta.email}
+                                billingMobile={`+234${User.phone.slice(-10)}`}
+                                // billingEmail="aminigbopaul@gmail.com"
+                                // billingMobile="+2349011684637"
+                                activityIndicatorColor="green"
+                                onCancel={(e) => {
+                                    // handle response here
+                                    Vibration.vibrate(1000);
+                                    setToPay(false)
+                                    setLoading(false)
+                                }}
+                                onSuccess={(response) => {
+                                    // handle response here
+
+
+
+                                    const responseObject = response["transactionRef"]["message"];
+                                    if (responseObject === "Approved") {
+                                        setLoading(true)
+                                        let Ref = response["transactionRef"]
+                                        if (selectedValue == "Registration") {
+                                            SaveRegPay(Ref)
+                                        } else {
+                                            SaveDuesPay(Ref)
+                                        }
+
+                                    } else {
+                                        Alert.alert("Error", "There was an error while funding your wallet.")
+                                    }
+                                    setToPay(false)
+
+                                }}
+                                autoStart={ToPay}
+                            />
+                        </View>
+                    </>
+
+                }
+
                 <View style={{
                     display: "flex",
                     flexDirection: "row",
@@ -445,14 +512,11 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                     <View style={{
                         // borderBottomWidth: 1,
                         // borderBottomColor: Colors.primary,
-                        backgroundColor: Colors.primary,
+                        // backgroundColor: Colors.primary,
                         flex: 1, alignItems: "center",
                         borderRadius: 8,
                         paddingTop: 10, marginLeft: 10
-                    }} >
-                        <Text style={{
-                            fontSize: 13, color: Colors.light, flex: 1, fontWeight: 900
-                        }} > Dues / Reg </Text>
+                    }} ><BoldText2 color={Colors.secondary} text="Dues / Reg " />
                     </View>
                     <Pressable
                         onPress={() => {
@@ -466,9 +530,7 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                             borderRadius: 8,
                             flex: 1, alignItems: "center"
                         }} >
-                        <Text style={{
-                            fontSize: 13, color: Colors.dark, flex: 1, fontWeight: 900
-                        }} >Pay Tithe </Text>
+                        <BoldText2 color={Colors.primary} text="Pay Tithe " />
                     </Pressable>
                     {/* <Pressable
                         onPress={() => {
@@ -742,7 +804,7 @@ function Add_details({ navigation, disp_user, appState, disp_surprise, route }) 
                                             marginTop: 10, marginBottom: -7, color: Colors.dark,
                                             textAlign: "left", marginLeft: 20
                                         }}>
-                                            Registration : ₦{NumberWithCommas(Fellow_To_Pay && Fellow_To_Pay.config.registeration)} / month
+                                            Registration : ₦{NumberWithCommas(Fellow_To_Pay && Fellow_To_Pay.config.registeration)} / year
                                         </Text>
                                     </View>
                                 }

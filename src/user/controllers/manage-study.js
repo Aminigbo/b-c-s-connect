@@ -144,7 +144,7 @@ export const Add_study = (payload) => {
         }
         AddUser_meta(payloadXX)
             .then(res => {
-                console.log("saved", res)
+                // console.log("saved", res)
                 payload.setloading(false)
                 if (res.error == null) {
                     payload.disp_user(payload.User)

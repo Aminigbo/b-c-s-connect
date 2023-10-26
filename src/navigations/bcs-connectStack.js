@@ -91,7 +91,7 @@ export default function BCSconnectStack({ appState }) {
 
 
             {/* QR=============== */}
-            <Stack.Screen name='view-user' component={ViewProfile} options={{ header: () => null }} />
+            {/* <Stack.Screen name='view-user' component={ViewProfile} options={{ header: () => null }} /> */}
 
             <Stack.Screen name='WEB' component={Web}
                 options={{

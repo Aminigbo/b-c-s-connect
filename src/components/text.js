@@ -64,7 +64,7 @@ export function BoldText2({
     return (<>
         <Text style={[style, {
             color: color,
-            fontWeight: 700,
+            fontWeight: 900,
             fontSize: 15,
             marginBottom: 10
         }]} >

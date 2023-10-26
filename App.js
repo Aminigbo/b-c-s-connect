@@ -7,13 +7,14 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useState, useEffect } from 'react' 
-import { Color } from './src/components/theme'; 
+import { useState, useEffect } from 'react'
+import { Color } from './src/components/theme';
 import SplashScreen from 'react-native-splash-screen';
 import { RequestUserPermission } from './src/utilities/fcntoken';
 import financeStack from './src/navigations/financeStack';
 import BCSconnectStack from './src/navigations/bcs-connectStack';
 import JobStack from './src/navigations/jobsStack';
+import Verifymeetinguser from "./src/user/screens/verify-auth"
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBookAtlas, faBriefcase, faDonate, faFeed, faHome, faHomeAlt, faLocation, faMapLocation, faMapMarkedAlt, faMapMarker, faMapMarkerAlt, faMarker, faMoneyBill, faPeopleArrows, faSearchLocation, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -25,8 +26,17 @@ import viewJobs from './src/job/pages/view-jobs';
 import View_event from "./src/events/pages/view-event"
 import jobApplicants from './src/job/pages/applicants-profile';
 import ViewProfile from "./src/bcs-connect/pages/user-profile"
-import { CustomMarker, CustomMarkerAlt } from './src/components/icons';
+import { BackIcon, CustomMarker, CustomMarkerAlt, SearchIcon } from './src/components/icons';
 import notifications from './src/bethel-finder/screens/notifications';
+import myjobs from './src/job/pages/myjobs';
+import Meetingattendance from "./src/user/screens/view-attendance"
+import search from './src/bcs-connect/pages/search';
+import filter from './src/bcs-connect/pages/filter';
+import scan from './src/user/screens/scan';
+import qrAuth from './src/user/screens/qr-auth';
+import createMeeting from './src/user/screens/create-meeting';
+import {NativeBaseProvider} from "native-base"
+
 const headerColor = '#fffdfb'
 const navTheme = DefaultTheme;
 
@@ -126,8 +136,8 @@ function App() {
 
 
                     // }} size={20} icon={faMapMarkerAlt} />}
-                  }} size={20} icon={faHome} /> 
-                  <Text>Find Bethel</Text>
+                  }} size={20} icon={faHome} />
+                  <Text style={{ color: isFocused ? Colors.primary : 'grey', }}>Find Bethel</Text>
                 </View>
               </>}
 
@@ -144,7 +154,7 @@ function App() {
 
                     // }} size={20} icon={faMapMarkerAlt} />}
                   }} size={20} icon={faUserGroup} />
-                  <Text>BCS-Connect</Text>
+                  <Text style={{ color: isFocused ? Colors.primary : 'grey', }}>BCS-Connect</Text>
                 </View>
               }
 
@@ -161,7 +171,7 @@ function App() {
 
                     // }} size={20} icon={faMapMarkerAlt} />}
                   }} size={20} icon={faBriefcase} />
-                  <Text>Jobs</Text>
+                  <Text style={{ color: isFocused ? Colors.primary : 'grey', }} >Jobs</Text>
                 </View>
               }
               {label == "BCS-Events" &&
@@ -177,7 +187,7 @@ function App() {
 
                     // }} size={20} icon={faMapMarkerAlt} />}
                   }} size={20} icon={faDonate} />
-                  <Text>Donations</Text>
+                  <Text style={{ color: isFocused ? Colors.primary : 'grey', }}>Donations</Text>
                 </View>}
               {label == "Finance" && <FontAwesomeIcon style={{
                 flex: 1,
@@ -263,44 +273,127 @@ function App() {
     <>
       <Provider store={store().store}>
         <PersistGate loading={null} persistor={store().persistor}>
-          <NavigationContainer theme={navTheme}  >
+          <NativeBaseProvider>
 
-            <Stack.Navigator
-              tabBar={props => <MyTabBar {...props} />}
+            <NavigationContainer theme={navTheme}  >
 
-              initialRouteName="Account"
-              screenOptions={({ route }) => ({
-                headerStyle: {
-                  backgroundColor: headerColor,
-                },
+              <Stack.Navigator
+                tabBar={props => <MyTabBar {...props} />}
 
-              })}
-            >
-              <Stack.Screen name="Accounts" component={HomeStacks} options={{ header: () => null }} />
-              <Stack.Screen name="Auth" component={AuthStack} options={{ header: () => null, }} />
-              <Stack.Screen name="Finance" component={financeStack} options={{ header: () => null }} />
-              <Stack.Screen name="Profile" component={ProfileStack} options={{ header: () => null }} />
-              <Stack.Screen name="Notifications" component={notifications} options={{
-                headerStyle: {
-                  backgroundColor: Colors.light
-                }
-              }} />
-              <Stack.Screen name="User-Profile" component={ViewProfile} options={{ header: () => null }} />
-              <Stack.Screen name="View-event" component={View_event} options={{
-                title: "",
-                headerStyle: {
-                  backgroundColor: Colors.light
-                }
-              }} />
-              <Stack.Screen name="View-job" component={viewJobs} options={{
-                title: "",
-                headerStyle: {
-                  backgroundColor: Colors.light
-                }
-              }} />
+                initialRouteName="Account"
+                screenOptions={({ route }) => ({
+                  headerStyle: {
+                    backgroundColor: headerColor,
+                  },
 
-            </Stack.Navigator>
-          </NavigationContainer>
+                })}
+              >
+                <Stack.Screen name="Accounts" component={HomeStacks} options={{ header: () => null }} />
+                <Stack.Screen name="Auth" component={AuthStack} options={{ header: () => null, }} />
+                <Stack.Screen name="Finance" component={financeStack} options={{ header: () => null }} />
+                <Stack.Screen name="Profile" component={ProfileStack} options={{ header: () => null }} />
+                <Stack.Screen name="Scan" component={scan} options={{
+                  title: "",
+                  headerLeft: () => (<BackIcon />),
+                  headerRight: () => (<SearchIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+                {/* create meeting */}
+                <Stack.Screen name="Create meeting" component={createMeeting} options={{
+                  title: "Create meeting attendance",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+
+                <Stack.Screen name="Verify-auht" component={Verifymeetinguser} options={{
+                  title: "Authenticate member",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+                {/* // Qr /  meeting management */}
+                <Stack.Screen name="QR" component={qrAuth} options={{
+                  title: "Meeting management",
+                  headerLeft: () => (<BackIcon />),
+                  // headerRight: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+
+                <Stack.Screen name="Notifications" component={notifications} options={{
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+                <Stack.Screen name="User-Profile" component={ViewProfile} options={{ header: () => null }} />
+
+                {/* <Stack.Screen name="view-user" component={ViewProfile} options={{ header: () => null }} /> */}
+
+                <Stack.Screen name="my-job" component={myjobs} options={{
+                  title: "My jobs",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+                {/* see attendance */}
+                <Stack.Screen name="View-attendance" component={Meetingattendance} options={{
+                  title: "",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+
+
+                {/* search for brethren */}
+                <Stack.Screen name="Search" component={search} options={{
+                  title: "Search",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+                {/* Filter for brethren */}
+                <Stack.Screen name="Filter" component={filter} options={{
+                  title: "Filter",
+                  headerLeft: () => (<BackIcon />),
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+
+                <Stack.Screen name="View-event" component={View_event} options={{
+                  title: "",
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+                <Stack.Screen name="View-job" component={viewJobs} options={{
+                  title: "",
+                  headerStyle: {
+                    backgroundColor: Colors.light
+                  }
+                }} />
+
+              </Stack.Navigator>
+            </NavigationContainer>
+          </NativeBaseProvider>
         </PersistGate>
       </Provider>
     </>

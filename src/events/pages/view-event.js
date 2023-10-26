@@ -34,6 +34,7 @@ import { supabase } from '../../config/supabase';
 import { ImgBaseUrl } from '../../utilities';
 import { CreateEventController, GetApp_Campaigns } from '../controllers/campaign-contrller';
 import { ViewCampaignCard } from '../components/view-campaign-card';
+import { SingleEventSkeletonLoader } from '../components/skeletonLoader';
 
 const Colors = Color()
 
@@ -86,48 +87,41 @@ function View_event({ navigation, disp_user, appState, disp_surprise, route }) {
 
             {loading == true ?
                 <View style={{
-                    marginTop: 23,
-                    position: "absolute",
-                    top: 1,
-                    zIndex: 2100,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    alignContent: "center",
-                    // backgroundColor:"red",
-                    width: "100%"
+                    // backgroundColor: "red",
+                    width: "100%",
+                    // flex:1
                 }} >
-                    <ActivityIndicator />
+                    {/* <ActivityIndicator /> */}
+                    <SingleEventSkeletonLoader />
                 </View> :
 
-                <SafeAreaView  >
-                    <StatusBar
-                        animated={true}
-                        backgroundColor={Colors.light}
-                        barStyle={statusBarStyle}
-                        showHideTransition={statusBarTransition}
-                        hidden={hidden}
-                    />
-                    <ScrollView >
-
-
-                    </ScrollView>
-                </SafeAreaView>
+                <>
+                    <SafeAreaView  >
+                        <StatusBar
+                            animated={true}
+                            backgroundColor={Colors.light}
+                            barStyle={statusBarStyle}
+                            showHideTransition={statusBarTransition}
+                            hidden={hidden}
+                        />
+                    </SafeAreaView>
+                    {dataToView &&
+                        <ViewCampaignCard
+                            setModalVisible={setModalVisible}
+                            setLoading={setLoading}
+                            data={dataToView}
+                            User={User}
+                            loading={loading}
+                            amount={amount}
+                            setamount={setamount}
+                            setData={setCampaigns}
+                        // setDataDefalt={setData}
+                        />
+                    }
+                </>
             }
 
-            {dataToView &&
-                <ViewCampaignCard
-                    setModalVisible={setModalVisible}
-                    setLoading={setLoading}
-                    data={dataToView}
-                    User={User}
-                    loading={loading}
-                    amount={amount}
-                    setamount={setamount}
-                    setData={setCampaigns}
-                // setDataDefalt={setData}
 
-                />
-            }
             {/* Modal */}
             <View style={styles.centeredView}>
                 <Modal

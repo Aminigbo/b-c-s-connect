@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import { CreateEventModel, FetchAllDonations, MakeDonationModel } from "../models";
+import { CreateEventModel, FetchAllDonations, MakeDonationModel, PlaceWithdrawal } from "../models";
 import { supabase } from "../../config/supabase";
 import { NumberWithCommas } from "../../utilities";
 
@@ -18,11 +18,12 @@ export const GetApp_Campaigns = ({
     setsupportRequestDrawer,
     disp_events
 }) => {
-    setLoading(true)
+
+    if (setLoading) { setLoading(true) }
     console.log("started fetching")
     FetchAllDonations()
         .then(res => {
-            setLoading(false)
+            if (setLoading) { setLoading(false) }
             if (res.success == true) {
                 if (res.data.length < 1) {
                     setData([])
@@ -33,7 +34,7 @@ export const GetApp_Campaigns = ({
                             status: true
                         })
                     }
-                    setLoading(false)
+                    if (setLoading) { setLoading(false) }
                 } else {
                     const EventData = res.data;
                     setData(EventData)
@@ -51,7 +52,7 @@ export const GetApp_Campaigns = ({
                     }
                 }
                 if (setcomponent) { setcomponent(component) }
-                setLoading(false)
+                if (setLoading) { setLoading(false) }
             } else {
                 if (seterror) {
                     seterror({
@@ -62,7 +63,7 @@ export const GetApp_Campaigns = ({
                 } else {
                     Alert.alert("Network error", "Make sure you are connected to the internet")
                 }
-                setLoading(false)
+                if (setLoading) { setLoading(false) }
             }
 
         })
@@ -74,7 +75,7 @@ export const GetApp_Campaigns = ({
                     status: true
                 })
             }
-            setLoading(false)
+            if (setLoading) { setLoading(false) }
         })
 }
 
@@ -216,6 +217,28 @@ export function MakeDonationController(payload) {
                     }
                 ])
             }
+            payload.handleSnapPress(0)
+
+        })
+}
+
+export function PlaeWithdrawalController(payload) {
+    PlaceWithdrawal(payload)
+        .then(response => {
+            if (response.success == true) {
+                payload.GetApp_Campaigns({
+                    setLoading: payload.setLoading,
+                    setData: payload.setData,
+                    setDataDefalt: payload.setDataDefalt
+                })
+                payload.setamount("")
+                payload.setLoading(false)
+                payload.Alert.alert("Success", "Withdrawal placed successfully")
+            } else {
+                payload.setLoading(false)
+                payload.Alert.alert("Error", response.message)
+            }
+            payload.handleSnapPress(0)
 
         })
 }

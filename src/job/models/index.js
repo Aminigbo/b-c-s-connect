@@ -62,6 +62,13 @@ export function AddJobsController(data) {
 
 
 
+export function FetchAllUsersJobs(poserId){
+    return supabase
+    .from("jobs")
+    .select("*")
+    .eq("poster_id", poserId)
+}
+
 export function ApplyForJob(payload) {
     console.log(payload)
     var myHeaders = new Headers();

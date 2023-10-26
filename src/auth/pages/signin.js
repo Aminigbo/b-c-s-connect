@@ -72,14 +72,14 @@ function SignIn({ navigation, disp_Login, appState, disp_surprise, route }) {
             Alert,
             disp_Login,
             Fcmoken,
-            FcmToken:Fcmoken
+            FcmToken:Fcmoken && Fcmoken
         })
     }
 
     return (
 
         <>
-            {/* {console.log(Fcmoken)} */}
+            {/* {Fcmoken && console.log("fcm token",Fcmoken)} */}
             <SafeAreaView style={styles.container}>
                 <StatusBar
                     animated={true}

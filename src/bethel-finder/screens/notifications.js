@@ -3,67 +3,86 @@ import {
     View,
     Text,
     Pressable, Alert,
-    Image, Dimensions, ImageBackground,
+    Image, Dimensions, ImageBackground, ActivityIndicator,
 } from 'react-native';
 import { Divider, Avatar } from 'react-native-paper';
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAdd, faAngleUp, faAngleLeft, faAngleRight, faBasketShopping, faCheck, faCheckDouble, faGifts, faLocationDot, faTree, faTreeCity, faTvAlt, faVideo, faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faUser, faCheckSquare, faUserAlt, faGlobeAfrica, faPhoneAlt, faMessage, faEnvelope, faDotCircle, faBriefcase, faPeopleArrows, faMoneyBill, faQrcode }
     from '@fortawesome/free-solid-svg-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';  
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { connect } from "react-redux";
 import {
+    Connect_user,
+    myNotification,
     surprise_state
-} from "../../redux"; 
+} from "../../redux";
 import { Color } from '../../components/theme';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { isAuth } from '../../controllers/auth/authController';
 import { HistoryCard } from '../../finance/components/history-cards';
 import { NotificationCard } from '../compnents/notification-card';
+import { FetchAllNotifications } from '../models';
 
 
 const { height, width } = Dimensions.get('window');
 const Colors = Color()
 
-function Notifications({ route, appState, disp_surprise }) {
+function Notifications({ route, appState, disp_viewUser, disp_notification }) {
     const [userState, setUserState] = useState()
     const User = appState.User;
+    const Notifications = appState.Notifications;
     const navigation = useNavigation();
-    const GetUser = () => {
-        if (User == undefined) {
-            isAuth().then(res => {
-                console.log(res)
-                if (res == false) return navigation.pop()
-                setUserState(res)
-            })
-        } else {
-            setUserState(User)
-        }
-    }
-    const AllSurprises = appState.SurpriseState;
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
-        // console.log(AllSurprises.length)
-        // console.log("Account page")
-        // GetUser()
-        // if (route.params && route.params != undefined) {
-        //     console.log(route.params)
-        //     let routeParams = route.params.data
-        // } else {
-        //     console.log("No params")
-        // }
-        console.log("Finance history")
-    }, [setUserState])
+
+        const unsubscribe = navigation.addListener('focus', async () => {
+
+            // setLoading(true)
+            FetchAllNotifications(User.phone)
+                .then(response => {
+                    // setLoading(false)
+                    // console.log(response)
+                    disp_notification(response.data)
+                })
+                .catch(error => {
+                    // setLoading(false)
+                    console.log(error)
+                })
+            console.log("Notifications")
+
+        });
+        // console.log(Brethren[0].name)
+        return unsubscribe;
+
+
+
+    }, [navigation])
 
 
 
 
     return (
         <>
-            
-            <SafeAreaView>
+            {loading == true &&
+                <View style={{
+                    marginTop: 23,
+                    position: "absolute",
+                    top: 1,
+                    zIndex: 2100,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignContent: "center",
+                    // backgroundColor:"red",
+                    width: "100%"
+                }} >
+                    <ActivityIndicator color={Colors.primary} />
+                </View>
+            }
+            <SafeAreaView style={{ flex: 1 }}>
                 <ScrollView>
 
                     <View style={{
@@ -84,12 +103,30 @@ function Notifications({ route, appState, disp_surprise }) {
                         {/* <Divider style={{ marginBottom: 30, }} /> */}
 
                         {
-                            User.meta.finance.map((e, key) => {
-                                return (
-                                    <NotificationCard data={e} navigation={navigation} key={key} />
-                                    // <Text>Hello</Text>
-                                )
-                            })
+                            Notifications && Notifications.length < 1 ?
+                                <>
+                                    <View style={{
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        height: 300
+                                    }} >
+                                        <Text style={{ color: "grey" }} >No notifiction</Text>
+                                    </View>
+                                </> :
+                                <>
+                                    {Notifications && Notifications.map((e, key) => {
+                                        return (
+                                            <NotificationCard
+                                                User={User}
+                                                disp_notification={disp_notification}
+                                                disp_viewUser={disp_viewUser}
+                                                data={e}
+                                                navigation={navigation}
+                                                key={key}
+                                                Notifications={Notifications} />
+                                        )
+                                    })
+                                    }</>
                         }
                     </View>
                 </ScrollView>
@@ -109,7 +146,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, encoded) => {
     return {
-        disp_surprise: (payload) => dispatch(surprise_state(payload)),
+        disp_viewUser: (payload) => dispatch(Connect_user(payload)), // when tap on any user, dispatch their data to state
+        disp_notification: (payload) => dispatch(myNotification(payload)),
     };
 };
 

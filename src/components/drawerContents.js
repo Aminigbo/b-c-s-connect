@@ -4,7 +4,7 @@ import { Divider, Avatar } from 'react-native-paper';
 import { Color } from './theme';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { useNavigation, DrawerActions } from '@react-navigation/native';
-import { faAdd, faBookBible, faBookOpen, faBookOpenReader, faBriefcase, faCheckCircle, faChevronRight, faDonate, faEnvelopeSquare, faGear, faLock, faMessage, faMoneyBill, faPlusSquare, faSearch, faSignIn, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faBookBible, faBookOpen, faBookOpenReader, faBriefcase, faCheckCircle, faChevronRight, faDonate, faEnvelopeSquare, faGear, faLock, faMessage, faMoneyBill, faPlusSquare, faQrcode, faSearch, faSignIn, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 import { isAuth } from '../auth/models/auth-models';
 import { Style } from '../../assets/styles';
@@ -158,7 +158,7 @@ export function HelloFriday() {
                 {/* <Divider style={{}} /> */}
 
                 {/* BCS events */}
-                <Pressable
+                {/* <Pressable
                     android_ripple={{ color: Colors.secondary }}
                     onPress={() => {
                         if (auth == false) {
@@ -179,7 +179,7 @@ export function HelloFriday() {
                 >
                     <FontAwesomeIcon size={18} style={{ flex: 3 }} icon={faBookOpenReader} />
                     <Text style={[Style.boldText, { marginLeft: 20, flex: 1 }]}>BCS Events</Text>
-                </Pressable>
+                </Pressable> */}
 
                 {/* <Donation /> */}
                 <Pressable
@@ -188,7 +188,7 @@ export function HelloFriday() {
                         if (auth == false) {
                             navigation.replace("Auth");
                         } else {
-                            navigation.navigate("Donation Campaign");
+                            navigation.navigate("BCS-Events");
                             closeDrawer();
                         }
                     }}
@@ -255,6 +255,36 @@ export function HelloFriday() {
                 </Pressable>
 
                 {/* <Divider /> */}
+                {/* Add bethels */}
+
+                {User && User.role && User.role.verified == true &&
+                    <Pressable
+                        android_ripple={{ color: Colors.secondary }}
+                        onPress={() => {
+                            if (auth == false) {
+                                navigation.replace("Auth");
+                            } else {
+                                // navigation.navigate('Accounts', { screen: 'Add-Bethel' });
+                                navigation.navigate("Add-Bethel");
+                                closeDrawer();
+                            }
+                        }}
+                        style={{
+                            paddingHorizontal: 12,
+                            paddingVertical: 17,
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "row",
+                            // backgroundColor: Colors.secondary
+                        }}
+
+                    >
+                        <FontAwesomeIcon size={18} style={{ flex: 3 }}
+                            icon={faAdd} />
+                        <Text style={[Style.boldText, { marginLeft: 20, flex: 1 }]}>Add a Bethel</Text>
+                    </Pressable>
+                }
+
                 <Pressable
                     android_ripple={{ color: Colors.secondary }}
                     onPress={() => {
@@ -262,7 +292,7 @@ export function HelloFriday() {
                             navigation.replace("Auth");
                         } else {
                             // navigation.navigate('Accounts', { screen: 'Add-Bethel' });
-                            navigation.navigate("Add-Bethel");
+                            navigation.navigate("QR");
                             closeDrawer();
                         }
                     }}
@@ -277,8 +307,8 @@ export function HelloFriday() {
 
                 >
                     <FontAwesomeIcon size={18} style={{ flex: 3 }}
-                        icon={faAdd} />
-                    <Text style={[Style.boldText, { marginLeft: 20, flex: 1 }]}>Add a Bethel</Text>
+                        icon={faQrcode} />
+                    <Text style={[Style.boldText, { marginLeft: 20, flex: 1 }]}>Meeting authentication</Text>
                 </Pressable>
 
 

@@ -63,7 +63,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
     const GetUser = () => {
         if (User == undefined) {
             isAuth().then(res => {
-                console.log(res)
+                // console.log(res)
                 if (res == false) return navigation.pop()
                 setUserState(res)
             })
@@ -100,7 +100,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
     const handlePickerConfirm = () => {
         setShowPicker(false);
         // handle the selected year
-        console.log(year);
+        // console.log(year);
     };
 
     const handlePickerCancel = () => {
@@ -160,7 +160,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
 
     // callbacks
     const handleSheetChanges = useCallback((index) => {
-        console.log('handleSheetChanges', index);
+        // console.log('handleSheetChanges', index);
     }, []);
 
     const handleSnapPress = useCallback((index) => {
@@ -185,7 +185,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
     function Delete() {
         let findIndex = User.study.findIndex(e => e.course == itemToDelete.data.course && e.school == itemToDelete.data.school)
         User.study.splice(findIndex, 1)
-        console.log(User.study.length)
+        // console.log(User.study.length)
         disp_user({
             ...User,
             study: User.study
@@ -201,7 +201,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
 
     // function to delete certificatioons
     function DeleteCert(payload) {
-        console.log(payload)
+        // console.log(payload)
         setloading(true)
         let FindIndex = User.meta.certification.findIndex(e => e.certificate == payload.certificate && e.institution == payload.institution)
         User.meta.certification.splice(FindIndex, 1)
@@ -462,7 +462,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                                     <Pressable
                                                         key={index}
                                                         onPress={() => {
-                                                            console.log(appState.User.meta)
+                                                            // console.log(appState.User.meta)
                                                         }}
                                                         android_ripple={{ color: Colors.secondary }}
                                                         style={{
@@ -624,7 +624,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                             return <Certificates key={index} data={`${e.school} (High school class of ${e.meta.class})`}
                                                 icon={faCheckSquare} iconX={faTimes}
                                                 iconXCallback={() => {
-                                                    console.log(e)
+                                                    // console.log(e)
                                                     setItemToDelet({
                                                         ...itemToDelete,
                                                         type: "COLLEGE",
@@ -647,7 +647,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                                 return <Certificates key={index} data={`Studied ${e.course} at ${e.school} ( ${e.meta.fromYear} - ${e.meta.toYear} ) `}
                                                     icon={faCheckSquare} iconX={faTimes}
                                                     iconXCallback={() => {
-                                                        console.log(e)
+                                                        // console.log(e)
                                                         // handleSnapPress(1)
                                                         setItemToDelet({
                                                             ...itemToDelete,
@@ -671,7 +671,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                                 return <Certificates key={key} data={`Studying ${e.course} at ${e.school} ( since ${e.meta.fromYear}) `}
                                                     icon={faCheckSquare} iconX={faTimes}
                                                     iconXCallback={() => {
-                                                        console.log(e)
+                                                        // console.log(e)
                                                         // handleSnapPress(1)
                                                         setItemToDelet({
                                                             ...itemToDelete,
@@ -725,7 +725,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                             })
                                             AddUser_meta(payloadXX)
                                                 .then(res => {
-                                                    console.log(User)
+                                                    // console.log(User)
                                                     setloading(false)
                                                     setModalVisible(true)
                                                     setData({
@@ -783,7 +783,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                     {User.meta.certification && User.meta.certification.length > 0 &&
                                         <TouchableOpacity
                                             onPress={() => {
-                                                console.log(User.meta.certification)
+                                                // console.log(User.meta.certification)
                                                 setModalVisible(true)
                                                 setData({
                                                     ...data, type: "CERTIFICATION"
@@ -847,7 +847,7 @@ function EditProfile({ route, appState, disp_surprise, disp_user }) {
                                                 })
                                                 AddUser_meta(payloadXX)
                                                     .then(res => {
-                                                        console.log(User)
+                                                        // console.log(User)
                                                         setloading(false)
                                                         setModalVisible(true)
                                                         setData({

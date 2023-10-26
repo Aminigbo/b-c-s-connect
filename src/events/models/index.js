@@ -67,7 +67,39 @@ export async function MakeDonationModel(payload) {
     }
 }
 
+export async function PlaceWithdrawal(payload) {
+    console.log(payload)
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
+    var raw = JSON.stringify({
+        "user": {
+            "name": payload.user.name,
+            "email": payload.user.email,
+            "phone": payload.user.phone,
+        },
+        "event": payload.eventID
+    });
+
+    var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    try {
+        const response = await fetch(`${API_Base_URL}events/withdraw`, requestOptions);
+        const result_1 = await response.text();
+        let data = JSON.parse(result_1);
+        return data
+    } catch (error) {
+        return {
+            success: false,
+            message:"An error occured, please try again later."
+        }
+    }
+}
 
 export async function CreateEventModel(payload) {
 
@@ -77,7 +109,7 @@ export async function CreateEventModel(payload) {
 
     var raw = JSON.stringify({
         "title": payload.title,
-        "amount": payload.amount,
+        "amount": payload.amount.replace(/,/g, ''),
         "deadline": payload.deadline,
         "poster": payload.poster,
         "poster_id": payload.poster_id,

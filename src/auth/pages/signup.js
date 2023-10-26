@@ -106,7 +106,7 @@ function Signup({ navigation, disp_Login, appState, disp_Fellowship, route }) {
                     },
                     fellowship: [
                         {
-                            id: appState.FellowshipToPay.id,
+                            // id: appState.FellowshipToPay.id,
                             fellowship: appState.FellowshipToPay.fellowship,
                             member: true,
                             approved: false,
@@ -277,7 +277,7 @@ function Signup({ navigation, disp_Login, appState, disp_Fellowship, route }) {
                     hidden={hidden}
                 />
                 <ScrollView  >
-                    <View style={{ width: "100%" }} >
+                    <View style={{  }} >
                         <Pressable
                             onPress={() => {
                                 navigation.navigate("Signin")
@@ -544,9 +544,9 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
         // borderColor: '#ccc',
         borderRadius: 4,
-        padding: 10,
+        // padding: 10,
         // marginBottom: 10,
-        width: '100%',
+        // width: '100%',
     },
     inputIcon: {
         marginRight: 10,

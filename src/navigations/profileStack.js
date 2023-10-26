@@ -94,7 +94,7 @@ export default function ProfileStack({ appState }) {
 
 
             {/* QR=============== */}
-            <Stack.Screen name='QR' component={QRAUTH} options={{ title: "QR Authenticator" }} />
+            {/* <Stack.Screen name='QR' component={QRAUTH} options={{ title: "Meeting management" }} /> */}
 
             <Stack.Screen name='WEB' component={Web}
                 options={{

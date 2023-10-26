@@ -16,11 +16,10 @@ import { TextInput, Button, Icon, RadioButton } from 'react-native-paper';
 import { Color } from '../../components/theme';
 import { Loader } from '../../components/loader';
 import { connect } from 'react-redux';
-import { surprise_state, user_state } from '../../redux';
+import { All_Events, surprise_state, user_state } from '../../redux';
 import { FetchGifts } from '../../controllers/items/itemsControllers';
 import FilterButton from '../../components/buttons/filterButton';
 import { faArrowLeftLong, faCalendar, faClose, faFileEdit, faFilter, faImage, faPlusSquare, faSearch, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FeedCard } from '../components/feed-card';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Style } from '../../../assets/styles';
 import { DonationCard } from '../components/campaign-card';
@@ -34,12 +33,16 @@ import { supabase } from '../../config/supabase';
 import { ImgBaseUrl } from '../../utilities';
 import { CreateEventController, GetApp_Campaigns } from '../controllers/campaign-contrller';
 import { ViewCampaignCard } from '../components/view-campaign-card';
+import { EventListSkeletonLoader } from '../components/skeletonLoader';
+
+// import SkeletonContent from 'react-native-skeleton-content';
 
 const Colors = Color()
 
 
-function Events({ navigation, disp_user, appState, disp_surprise, route }) {
+function Events({ navigation, disp_user, appState, disp_surprise, route, disp_events }) {
     const User = appState.User;
+    const Events = appState.Events;
     const [component, setcomponent] = useState('EVENTSxx');
     const { height } = Dimensions.get('window');
     const [amount, setamount] = useState("")
@@ -50,318 +53,15 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [data, setData] = useState([]);
-    const [posts, setPosts] = useState(
-        [
-            {
-                ID: 1,
-                animalName: "Lion",
-                specie: "Wild",
-                description: "The lion is a large carnivorous mammal of the Felidae family."
-            },
-            {
-                ID: 2,
-                animalName: "Tiger",
-                specie: "Wild",
-                description: "The tiger is the largest cat species and a member of the Felidae family."
-            },
-            {
-                ID: 3,
-                animalName: "Elephant",
-                specie: "Wild",
-                description: "The elephant is the largest land animal and has a long trunk."
-            },
-            {
-                ID: 4,
-                animalName: "Giraffe",
-                specie: "Wild",
-                description: "The giraffe is a tall African mammal known for its long neck and legs."
-            },
-            {
-                ID: 5,
-                animalName: "Zebra",
-                specie: "Wild",
-                description: "The zebra is a wild horse-like mammal native to Africa."
-            },
-            {
-                ID: 6,
-                animalName: "Cheetah",
-                specie: "Wild",
-                description: "The cheetah is a large cat known for its speed and distinctive coat patterns."
-            },
-            {
-                ID: 7,
-                animalName: "Gorilla",
-                specie: "Wild",
-                description: "The gorilla is a large primate native to Africa and known for its strength."
-            },
-            {
-                ID: 8,
-                animalName: "Kangaroo",
-                specie: "Wild",
-                description: "The kangaroo is a marsupial from Australia known for its powerful hind legs."
-            },
-            {
-                ID: 9,
-                animalName: "Koala",
-                specie: "Wild",
-                description: "The koala is a marsupial native to Australia and known for its cuddly appearance."
-            },
-            {
-                ID: 10,
-                animalName: "Panda",
-                specie: "Wild",
-                description: "The panda is a bear native to China and known for its distinctive black and white fur."
-            },
-            {
-                ID: 11,
-                animalName: "Polar Bear",
-                specie: "Wild",
-                description: "The polar bear is a large bear native to the Arctic regions and adapted to cold climates."
-            },
-            {
-                ID: 12,
-                animalName: "Kangaroo",
-                specie: "Wild",
-                description: "The kangaroo is a marsupial from Australia known for its powerful hind legs."
-            },
-            {
-                ID: 13,
-                animalName: "Cheetah",
-                specie: "Wild",
-                description: "The cheetah is a large cat known for its speed and distinctive coat patterns."
-            },
-            {
-                ID: 14,
-                animalName: "Gorilla",
-                specie: "Wild",
-                description: "The gorilla is a large primate native to Africa and known for its strength."
-            },
-            {
-                ID: 15,
-                animalName: "Koala",
-                specie: "Wild",
-                description: "The koala is a marsupial native to Australia and known for its cuddly appearance."
-            },
-            {
-                ID: 16,
-                animalName: "Panda",
-                specie: "Wild",
-                description: "The panda is a bear native to China and known for its distinctive black and white fur."
-            },
-            {
-                ID: 17,
-                animalName: "Polar Bear",
-                specie: "Wild",
-                description: "The polar bear is a large bear native to the Arctic regions and adapted to cold climates."
-            },
-            {
-                ID: 18,
-                animalName: "Dog",
-                specie: "Domestic",
-                description: "The dog is a domesticated carnivorous mammal and a popular pet."
-            },
-            {
-                ID: 19,
-                animalName: "Cat",
-                specie: "Domestic",
-                description: "The cat is a small carnivorous mammal and a popular pet worldwide."
-            },
-            {
-                ID: 20,
-                animalName: "Horse",
-                specie: "Domestic",
-                description: "The horse is a large ungulate mammal used for riding, racing, and working purposes."
-            },
-            {
-                ID: 21,
-                animalName: "Cow",
-                specie: "Domestic",
-                description: "The cow is a domesticated herbivorous mammal raised for its milk and meat."
-            },
-            {
-                ID: 22,
-                animalName: "Sheep",
-                specie: "Domestic",
-                description: "The sheep is a domesticated ruminant mammal valued for its wool and meat."
-            },
-            {
-                ID: 23,
-                animalName: "Goat",
-                specie: "Domestic",
-                description: "The goat is a domesticated mammal widely kept for its milk, meat, and fiber."
-            },
-            {
-                ID: 24,
-                animalName: "Chicken",
-                specie: "Domestic",
-                description: "The chicken is a domesticated bird primarily raised for its meat and eggs."
-            },
-            {
-                ID: 25,
-                animalName: "Duck",
-                specie: "Domestic",
-                description: "The duck is a domesticated waterfowl bird known for its quack and webbed feet."
-            },
-            {
-                ID: 26,
-                animalName: "Turkey",
-                specie: "Domestic",
-                description: "The turkey is a large bird native to North America and often consumed during holidays."
-            },
-            {
-                ID: 27,
-                animalName: "Rabbit",
-                specie: "Domestic",
-                description: "The rabbit is a small mammal known for its long ears and ability to hop."
-            },
-            {
-                ID: 28,
-                animalName: "Guinea Pig",
-                specie: "Domestic",
-                description: "The guinea pig is a small domesticated rodent often kept as a pet."
-            },
-            {
-                ID: 29,
-                animalName: "Hamster",
-                specie: "Domestic",
-                description: "The hamster is a small rodent popular as a pocket pet due to its small size."
-            },
-            {
-                ID: 30,
-                animalName: "Goldfish",
-                specie: "Domestic",
-                description: "The goldfish is a freshwater fish often kept in aquariums as a pet."
-            },
-            {
-                ID: 31,
-                animalName: "Parrot",
-                specie: "Domestic",
-                description: "The parrot is a colorful bird known for its ability to mimic human speech."
-            },
-            {
-                ID: 32,
-                animalName: "Cockatoo",
-                specie: "Domestic",
-                description: "The cockatoo is a large crested bird native to Australia known for its intelligence."
-            },
-            {
-                ID: 33,
-                animalName: "Pigeon",
-                specie: "Domestic",
-                description: "The pigeon is a domesticated bird known for its homing instinct and use in racing."
-            },
-            {
-                ID: 34,
-                animalName: "Guppy",
-                specie: "Domestic",
-                description: "The guppy is a small colorful fish often kept in aquariums."
-            },
-            {
-                ID: 35,
-                animalName: "Iguana",
-                specie: "Wild",
-                description: "The iguana is a large lizard found in tropical and subtropical regions."
-            },
-            {
-                ID: 36,
-                animalName: "Chameleon",
-                specie: "Wild",
-                description: "The chameleon is a reptile known for its ability to change color and long tongue."
-            },
-            {
-                ID: 37,
-                animalName: "Crocodile",
-                specie: "Wild",
-                description: "The crocodile is a large reptile known for its long snout and sharp teeth."
-            },
-            {
-                ID: 38,
-                animalName: "Python",
-                specie: "Wild",
-                description: "The python is a large nonvenomous snake found in tropical regions."
-            },
-            {
-                ID: 39,
-                animalName: "Koala",
-                specie: "Wild",
-                description: "The koala is a marsupial native to Australia and known for its cuddly appearance."
-            },
-            {
-                ID: 40,
-                animalName: "Panda",
-                specie: "Wild",
-                description: "The panda is a bear native to China and known for its distinctive black and white fur."
-            },
-            {
-                ID: 41,
-                animalName: "Polar Bear",
-                specie: "Wild",
-                description: "The polar bear is a large bear native to the Arctic regions and adapted to cold climates."
-            },
-            {
-                ID: 42,
-                animalName: "Dog",
-                specie: "Domestic",
-                description: "The dog is a domesticated carnivorous mammal and a popular pet."
-            },
-            {
-                ID: 43,
-                animalName: "Cat",
-                specie: "Domestic",
-                description: "The cat is a small carnivorous mammal and a popular pet worldwide."
-            },
-            {
-                ID: 44,
-                animalName: "Horse",
-                specie: "Domestic",
-                description: "The horse is a large ungulate mammal used for riding, racing, and working purposes."
-            },
-            {
-                ID: 45,
-                animalName: "Cow",
-                specie: "Domestic",
-                description: "The cow is a domesticated herbivorous mammal raised for its milk and meat."
-            },
-            {
-                ID: 46,
-                animalName: "Sheep",
-                specie: "Domestic",
-                description: "The sheep is a domesticated ruminant mammal valued for its wool and meat."
-            },
-            {
-                ID: 47,
-                animalName: "Goat",
-                specie: "Domestic",
-                description: "The goat is a domesticated mammal widely kept for its milk, meat, and fiber."
-            },
-            {
-                ID: 48,
-                animalName: "Chicken",
-                specie: "Domestic",
-                description: "The chicken is a domesticated bird primarily raised for its meat and eggs."
-            },
-            {
-                ID: 49,
-                animalName: "Duck",
-                specie: "Domestic",
-                description: "The duck is a domesticated waterfowl bird known for its quack and webbed feet."
-            },
-            {
-                ID: 50,
-                animalName: "Turkey",
-                specie: "Domestic",
-                description: "The turkey is a large bird native to North America and often consumed during holidays."
-            }
-        ]
-    );
+
     const [page, setPage] = useState(5);
     const fetchPosts = () => {
-        setLoading(true);
+        setBottomLoading(true);
 
         // // Simulating API call delay
         setTimeout(() => {
             generatePosts(page);
-            setLoading(false);
+            setBottomLoading(false);
         }, 3000);
     };
 
@@ -387,6 +87,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
 
 
     const [loading, setLoading] = useState(false)
+    const [Bottomloading, setBottomLoading] = useState(false)
     const [imageHeight, setImageHeight] = useState(null);
 
     useEffect(() => {
@@ -396,12 +97,17 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
             //     setLoading(false)
             // }, 1000);
             setPage(4)
-            GetApp_Campaigns({
-                setLoading,
-                seterror,
-                setData: setCampaigns,
-                setDataDefalt: setData
-            })
+            console.log(Events)
+            if (Events.length < 1) {
+                console.log("Event is less ======================")
+                GetApp_Campaigns({
+                    setLoading,
+                    seterror,
+                    setData: setCampaigns,
+                    setDataDefalt: setData,
+                    disp_events
+                })
+            }
             setcomponent("EVENTS")
         });
 
@@ -536,7 +242,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
             {/* <FilterButton title="Filter" icon={faFilter} onPress={() => {
                 navigation.navigate("Payments")
             }} /> */}
-
+            {/* {console.log(User.role)} */}
             <View style={{
                 display: "flex",
                 flexDirection: "column",
@@ -602,7 +308,9 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                         }} size={23} icon={faUser} />
                     </Pressable> */}
 
-                    <Pressable
+
+
+                    {User && User.role.verified == true && <Pressable
                         onPress={() => {
                             setModalVisible(true)
                             setdateToView(null)
@@ -619,7 +327,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             color: Colors.primary,
 
                         }} size={23} icon={faPlusSquare} />
-                    </Pressable>
+                    </Pressable>}
                 </View>
 
                 {/* {loading == false &&
@@ -646,7 +354,6 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             // setcomponent("EVENTS")
                             handleScrollToTop()
                             GetApp_Campaigns({
-                                setLoading,
                                 setData: setCampaigns,
                                 component: "EVENTS",
                                 setcomponent
@@ -661,7 +368,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             borderBottomWidth: loading == false && component == "EVENTS" ? 1 : 0,
                             borderBottomColor: loading == false && component == "EVENTS" ? Colors.lightgrey : Colors.light
                         }} >
-                        <Text style={[component == "EVENTS" && Style.boldText, { paddingBottom: 10 }]} >All campaigns</Text>
+                        <Text style={[component == "EVENTS" && Style.boldText, { paddingBottom: 10, color: Colors.dark }]} >All campaigns</Text>
                     </Pressable>
 
                     <Pressable
@@ -687,27 +394,13 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                             borderBottomWidth: loading == false && component == "MYCAMPAIGNS" ? 1 : 0,
                             borderBottomColor: loading == false && component == "MYCAMPAIGNS" ? Colors.lightgrey : Colors.light
                         }} >
-                        <Text style={[component == "MYCAMPAIGNS" && Style.boldText, { paddingBottom: 10, color: Colors.dark }]} >My Campaigns ({data.filter(e => e.meta.posterPhone == User.phone).length})</Text>
+                        <Text style={[component == "MYCAMPAIGNS" && Style.boldText, { paddingBottom: 10, color: Colors.dark }]} >My Campaigns ({Events.filter(e => e.meta.posterPhone == User.phone).length})</Text>
                     </Pressable>
                 </View>
 
             </View >
 
-            {loading == true &&
-                <View style={{
-                    marginTop: 23,
-                    position: "absolute",
-                    top: 1,
-                    zIndex: 2100,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    alignContent: "center",
-                    // backgroundColor:"red",
-                    width: "100%"
-                }} >
-                    <ActivityIndicator />
-                </View>
-            }
+
             <>
 
                 <SafeAreaView  >
@@ -718,89 +411,78 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                         showHideTransition={statusBarTransition}
                         hidden={hidden}
                     />
-                    <ScrollView
-                        ref={scrollViewRef}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                    >
 
 
-                        <>
-                            <View style={styles.content}>
 
-                                {component == "MYCAMPAIGNS" ?
-                                    <>
-                                        <View style={{ marginTop: 10, width: "100%" }} >
-                                            {
+                    <>
+                        {loading == true ?
+                            <View style={{
+                                marginTop: 130
+                            }} >
+                                {/* <ActivityIndicator /> */}
+                                <EventListSkeletonLoader />
+                            </View> :
+                            <ScrollView
+                                ref={scrollViewRef}
+                                onScroll={handleScroll}
+                                scrollEventThrottle={16}
+                            >
+                                <View style={styles.content}>
 
-                                                // replace Campaigns with data if you want to continue with the pagination
-                                                // Campaigns.length > 0 && Campaigns.sort(() => 0.5 - Math.random()).map((e, index) => {
-                                                Campaigns.length > 0 && Campaigns.map((e, index) => {
-                                                    return (
-                                                        <>
-                                                            <DonationCard
-                                                                data={e}
-                                                                navigation={navigation}
-                                                                key={index}
-                                                                setdateToView={setdateToView}
-                                                                setModalVisible={setModalVisible}
-                                                            />
-                                                        </>
-                                                    )
-                                                })
-                                            }
-                                        </View>
-                                    </>
-                                    :
-                                    <>
-                                        <View style={{ marginTop: 10, width: "100%" }} >
-                                            {
+                                    {component == "MYCAMPAIGNS" ?
+                                        <>
+                                            <View style={{ marginTop: 10, width: "100%" }} >
+                                                {
 
-                                                // replace Campaigns with data if you want to continue with the pagination
-                                                // Campaigns.length > 0 && Campaigns.sort(() => 0.5 - Math.random()).map((e, index) => {
-                                                Campaigns.length > 0 && Campaigns.map((e, index) => {
-                                                    return (
-                                                        <>
-                                                            <DonationCard
-                                                                data={e}
-                                                                navigation={navigation}
-                                                                key={index}
-                                                                setdateToView={setdateToView}
-                                                                setModalVisible={setModalVisible}
-                                                            />
-                                                        </>
-                                                    )
-                                                })
-                                            }
-                                        </View>
-                                    </>}
-                            </View>
-                        </>
+                                                    // replace Campaigns with data if you want to continue with the pagination
+                                                    // Campaigns.length > 0 && Campaigns.sort(() => 0.5 - Math.random()).map((e, index) => {
+                                                    Events.length > 0 && Events.filter(e => e.meta.posterPhone == User.phone).map((e, index) => {
+                                                        return (
+                                                            <>
+                                                                <DonationCard
+                                                                    data={e}
+                                                                    navigation={navigation}
+                                                                    key={index}
+                                                                    setdateToView={setdateToView}
+                                                                    setModalVisible={setModalVisible}
+                                                                />
+                                                            </>
+                                                        )
+                                                    })
+                                                }
+                                            </View>
+                                        </>
+                                        :
+                                        <>
+                                            <View style={{ marginTop: 10, width: "100%" }} >
+                                                {
+                                                    Events.length > 0 && Events.map((e, index) => {
+                                                        return (
+                                                            <>
+                                                                <DonationCard
+                                                                    data={e}
+                                                                    navigation={navigation}
+                                                                    key={index}
+                                                                    setdateToView={setdateToView}
+                                                                    setModalVisible={setModalVisible}
+                                                                />
+                                                            </>
+                                                        )
+                                                    })
+                                                }
+                                            </View>
+                                        </>}
+                                </View>
+                            </ScrollView>
+                        }
+                    </>
 
-                        {/* {data.length > 2 &&
-                            loading == true &&
-                            <View
-                                onPress={() => {
-                                    fetchPosts()
-                                }}
-                                style={{
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    flex: 1,
-                                    marginVertical: 9,
-                                    height: 20,
-                                    width: "30%",
-                                    marginLeft: "35%",
-                                    borderRadius: 5
-                                }} >
-                                <ActivityIndicator />
-                            </View>
-                        } */}
 
-                        {/* show error */}
-                        {loading == false && error.status == true && < EmptyData title={error.type} message={error.msg} />}
 
-                    </ScrollView>
+                    {/* show error */}
+                    {loading == false && error.status == true && < EmptyData title={error.type} message={error.msg} />}
+
+
                 </SafeAreaView>
             </>
 
@@ -928,10 +610,26 @@ function Events({ navigation, disp_user, appState, disp_surprise, route }) {
                                     <TextInput
                                         // autoFocus
                                         value={createdata.amount}
-                                        onChangeText={(value) => setcreateData({
-                                            ...createdata,
-                                            amount: value
-                                        })}
+                                        onChangeText={(value) => {
+
+                                            const formatNumber = (inputText) => {
+                                                // Remove all non-numeric characters and leading zeros
+                                                const cleanedText = inputText.replace(/[^0-9]/g, '').replace(/^0+/, '');
+
+                                                // Add commas for thousands separator
+                                                const formattedText = cleanedText.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+                                                return formattedText;
+                                            };
+                                            // setamount(value)
+                                            const formattedText = formatNumber(value);
+                                            // setamount(formattedText);
+
+                                            setcreateData({
+                                                ...createdata,
+                                                amount: formattedText
+                                            })
+                                        }}
                                         style={{ width: "100%", marginTop: 5, }}
                                         textColor={Colors.dark}
                                         theme={{
@@ -1162,7 +860,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, encoded) => {
     return {
         disp_user: (payload) => dispatch(user_state(payload)),
-        disp_surprise: (payload) => dispatch(surprise_state(payload)),
+        disp_events: (payload) => dispatch(All_Events(payload)),
     };
 };
 

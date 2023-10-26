@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { View, StyleSheet, Text, Pressable, ImageBackground, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Text, Pressable, Keyboard, Image, TouchableOpacity, ScrollView, Alert, Vibration } from 'react-native';
 import { Color } from '../../components/theme';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBandage, faCheckCircle, faCheckDouble, faCheckSquare, faDonate, faGroupArrowsRotate, faIdBadge, faRotate, faSquare } from '@fortawesome/free-solid-svg-icons';
@@ -11,9 +11,9 @@ import CustomBottomDrawer from '../../components/bottomDrawer';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { AddDonation, FetchAllDonationsByID, } from '../models';
 import { AddUser_meta } from '../../user/models/user-model';
-import { BoldText2, BoldText3 } from '../../components/text';
-import { GetApp_Campaigns, MakeDonationController } from '../../events/controllers/campaign-contrller';
-
+import { BoldText1, BoldText2, BoldText3 } from '../../components/text';
+import { GetApp_Campaigns, MakeDonationController, PlaeWithdrawalController } from '../../events/controllers/campaign-contrller';
+import { Paystack } from "react-native-paystack-webview";
 const Colors = Color()
 
 export function getTotalAmount(arr) {
@@ -32,9 +32,12 @@ export function ViewCampaignCard({
     setDataDefalt
 
 }) {
+    const [miniloading, setminiLoading] = useState(false)
     const [annonymous, setannonymous] = useState(false)
-
-
+    const [WithdrawComponent, setWithdrawComponent] = useState(false)
+    const [ToPay, setToPay] = useState(false)
+    const [acc_number, setacc_number] = useState(false)
+    const [bank, setbank] = useState(false)
 
     // bottomSheetRef ref
     const bottomSheetRef = useRef(null);
@@ -45,7 +48,7 @@ export function ViewCampaignCard({
     }, []);
 
     // bottom drawer  snapPoints variables
-    const snapPoints = useMemo(() => ['17%', '50%', '95%'], []);
+    const snapPoints = useMemo(() => ['1%', '50%', '95%'], []);
 
     // callbacks when the drawer is closed or open
     const handleSheetChanges = useCallback((index) => {
@@ -113,7 +116,7 @@ export function ViewCampaignCard({
                 phone: User.phone.slice(-10)
             },
             payref: ref,
-            amount,
+            amount: amount.replace(/,/g, ''),
             date: new Date(),
             annonymous: annonymous,
             eventID: data.id,
@@ -125,12 +128,14 @@ export function ViewCampaignCard({
             setamount,
             Alert,
             setModalVisible,
-            GetApp_Campaigns
+            GetApp_Campaigns,
+            handleSnapPress
 
         }
         MakeDonationController(donationData)
+        // handleSnapPress(0)
+        Keyboard.dismiss();
     }
-
 
 
     return (
@@ -139,6 +144,43 @@ export function ViewCampaignCard({
                 <View style={{
                     flex: 1
                 }}>
+                    {ToPay &&
+                        <>
+                            <View style={{ flex: 1 }}>
+                                <Paystack
+                                    paystackKey="pk_live_b04f8f73bcaf344c82b336ae754c9d9b8a1da938"
+                                    amount={amount.replace(/,/g, '')}
+                                    currency="NGN"
+                                    billingEmail={User.meta.email}
+                                    billingMobile={`+234${User.phone.slice(-10)}`}
+                                    // billingEmail="aminigbopaul@gmail.com"
+                                    // billingMobile="+2349011684637"
+                                    activityIndicatorColor="green"
+                                    onCancel={(e) => {
+                                        // handle response here
+                                        Vibration.vibrate(1000);
+                                        setToPay(false)
+                                        setLoading(false)
+                                    }}
+                                    onSuccess={(response) => {
+                                        // handle response here
+
+                                        const responseObject = response["transactionRef"]["message"];
+                                        if (responseObject === "Approved") {
+                                            setLoading(true)
+                                            handleSuccess(response["transactionRef"])
+                                        } else {
+                                            Alert.alert("Error", "There was an error while funding your wallet.")
+                                        }
+                                        setToPay(false)
+
+                                    }}
+                                    autoStart={ToPay}
+                                />
+                            </View>
+                        </>
+
+                    }
                     <View
                         style={{
                             padding: 16,
@@ -309,25 +351,27 @@ export function ViewCampaignCard({
                                 marginVertical: 30
                             }}
                             callBack={() => {
+                                setWithdrawComponent("DONATE")
                                 handleSnapPress(1)
                             }}
                         />
                     </> : <>
 
                         <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }} >
-                            <BoldText3 text={data && " ₦" + NumberWithCommas(getTotalAmount(data.donations))} />
-                            <PrimaryButton title="Withdraw funds"
+                            {/* <BoldText3 color="black" text={data && " ₦" + NumberWithCommas(getTotalAmount(data.donations))} /> */}
+                            <PrimaryButton title={`Withdraw funds  ₦${NumberWithCommas(getTotalAmount(data.donations))}`}
                                 style={{
                                     width: "90%",
                                     // marginLeft: "5%",
                                     marginBottom: 30,
-                                    backgroundColor: getTotalAmount(data.donations) < 5000 ? Colors.secondary : Colors.primary
+                                    backgroundColor: getTotalAmount(data.donations) < 99 ? Colors.secondary : Colors.primary
                                 }}
                                 callBack={() => {
-                                    if (getTotalAmount(data.donations) > 4999) {
-
+                                    if (getTotalAmount(data.donations) > 99) {
+                                        setWithdrawComponent("WITHDRAW")
                                         handleSnapPress(1)
                                     }
+
                                 }}
                             />
                         </View>
@@ -347,95 +391,217 @@ export function ViewCampaignCard({
             >
 
                 {/* <DrawerContents /> */}
-                <View style={styles.content}>
-                    <View style={{ width: "100%", justifyContent: "flex-start" }} >
-                        {/* <Text style={{ marginLeft: 20, color: Colors.dark }}>Amount to donate</Text> */}
-                        <TextInput
-                            keyboardType='numeric'
-                            // autoFocus
-                            value={amount}
-                            onChangeText={(value) => setamount(value)}
-                            style={{ width: "90%", marginLeft: "5%" }}
-                            textColor={Colors.dark}
-                            theme={{
-                                colors: {
-                                    primary: Colors.dark,
-                                    background: 'white',
-                                    placeholder: "red",
-                                },
-                                roundness: 8,
-                            }}
-                            mode="outlined"
-                            multiline
-                            label="Enter amount to donate"
-                        />
-                        <View style={{
-                            width: "90%",
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            // backgroundColor: "red",
-                            marginLeft: "5%", marginTop: 16
-                        }} >
-                            <Text style={{ color: Colors.grey, fontSize: 16, }}>
-                                Donate annonymously?
-                            </Text>
 
-                            {annonymous == true ?
-                                <Pressable
-                                    onPress={() => {
-                                        setannonymous(false)
+                {WithdrawComponent == "WITHDRAW" &&
+                    <>
+                        <View style={styles.content}>
+                            <View style={{ width: "100%", justifyContent: "flex-start", alignItems: "center" }} >
+                                <View style={{ width: "90%", }}>
+                                    <BoldText1 text="Provide an account related to the campaign to avoid withdrawal decline." color="black" />
+                                    <BoldText1 text="This campaign will be deactivated immediately this withdrawal is placed" color="black" />
+                                </View>
+                                <TextInput
+                                    keyboardType='numeric'
+                                    // autoFocus
+                                    value={acc_number}
+                                    onChangeText={(value) => {
+                                        setacc_number(value);
                                     }}
-                                    style={{}}
-                                >
-                                    <FontAwesomeIcon size={23} style={{
-                                        // flex: 1,
-                                        color: Colors.primary,
-                                        // opacity: 0.8,
-                                        marginLeft: 10
-                                        // margin: 20,
+                                    style={{ width: "90%", }}
+                                    textColor={Colors.dark}
+                                    theme={{
+                                        colors: {
+                                            primary: Colors.dark,
+                                            background: 'white',
+                                            placeholder: "red",
+                                        },
+                                        roundness: 8,
                                     }}
-                                        icon={faCheckSquare} />
-                                </Pressable>
-                                :
-                                <Pressable
-                                    onPress={() => {
-                                        setannonymous(true)
+                                    mode="outlined"
+                                    multiline
+                                    label="Corperate account number"
+                                />
+                                <TextInput
+                                    // keyboardType='numeric'
+                                    // autoFocus
+                                    value={bank}
+                                    onChangeText={(value) => {
+                                        setbank(value);
                                     }}
-                                    style={{}}
-                                >
-                                    <FontAwesomeIcon size={23} style={{
-                                        // flex: 1,
-                                        color: Colors.lightgrey,
-                                        // opacity: 0.8,
-                                        marginLeft: 10
-                                        // margin: 20,
+                                    style={{ width: "90%", marginTop: "5%" }}
+                                    textColor={Colors.dark}
+                                    theme={{
+                                        colors: {
+                                            primary: Colors.dark,
+                                            background: 'white',
+                                            placeholder: "red",
+                                        },
+                                        roundness: 8,
                                     }}
-                                        icon={faSquare} />
-                                </Pressable>}
+                                    mode="outlined"
+                                    multiline
+                                    label="Bank name"
+                                />
+
+                            </View>
 
 
+                            <PrimaryButton
+                                loading={miniloading}
+                                style={{
+                                    // width: "90%",
+                                    marginLeft: "5%",
+                                    marginTop: 40,
+                                    textTransform: 'uppercase', marginBottom: 30
+
+                                }}
+                                callBack={() => {
+                                    // handleSnapPress(0)
+                                    if (!bank || bank.length < 3 || !acc_number || acc_number.length < 10) {
+                                        Alert.alert("Error", "Fill all inpute field.")
+                                    } else {
+                                        Alert.alert("Warning", "This campaign will be deactivated immediately this withdrawal is placed", [
+                                            { text: "Cancel" },
+                                            {
+                                                text: "Continue", onPress: () => {
+                                                    let donationData = {
+                                                        user: {
+                                                            name: User.name,
+                                                            email: User.meta.email,
+                                                            phone: User.phone.slice(-10)
+                                                        },
+                                                        eventID: data.id,
+
+                                                        // UI data
+                                                        setData,
+                                                        setDataDefalt,
+                                                        setLoading: setminiLoading,
+                                                        setamount,
+                                                        Alert,
+                                                        setModalVisible,
+                                                        GetApp_Campaigns,
+                                                        handleSnapPress
+
+                                                    }
+                                                    setminiLoading(true)
+                                                    PlaeWithdrawalController(donationData)
+                                                }
+                                            }
+                                        ])
+                                    }
+                                }} title={`Place withdrawal`} />
                         </View>
+                    </>
+                }
+
+                {WithdrawComponent == "DONATE" && <>
+                    <View style={styles.content}>
+                        <View style={{ width: "100%", justifyContent: "flex-start" }} >
+                            {/* <Text style={{ marginLeft: 20, color: Colors.dark }}>Amount to donate</Text> */}
+                            <TextInput
+                                keyboardType='numeric'
+                                // autoFocus
+                                value={amount}
+                                onChangeText={(value) => {
+                                    const formatNumber = (inputText) => {
+                                        // Remove all non-numeric characters and leading zeros
+                                        const cleanedText = inputText.replace(/[^0-9]/g, '').replace(/^0+/, '');
+
+                                        // Add commas for thousands separator
+                                        const formattedText = cleanedText.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+                                        return formattedText;
+                                    };
+                                    // setamount(value)
+                                    const formattedText = formatNumber(value);
+                                    setamount(formattedText);
+                                }}
+                                style={{ width: "90%", marginLeft: "5%" }}
+                                textColor={Colors.dark}
+                                theme={{
+                                    colors: {
+                                        primary: Colors.dark,
+                                        background: 'white',
+                                        placeholder: "red",
+                                    },
+                                    roundness: 8,
+                                }}
+                                mode="outlined"
+                                multiline
+                                label="Enter amount to donate"
+                            />
+                            <View style={{
+                                width: "90%",
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                // backgroundColor: "red",
+                                marginLeft: "5%", marginTop: 16
+                            }} >
+                                <Text style={{ color: Colors.grey, fontSize: 16, }}>
+                                    Donate annonymously?
+                                </Text>
+
+                                {annonymous == true ?
+                                    <Pressable
+                                        onPress={() => {
+                                            setannonymous(false)
+                                        }}
+                                        style={{}}
+                                    >
+                                        <FontAwesomeIcon size={23} style={{
+                                            // flex: 1,
+                                            color: Colors.primary,
+                                            // opacity: 0.8,
+                                            marginLeft: 10
+                                            // margin: 20,
+                                        }}
+                                            icon={faCheckSquare} />
+                                    </Pressable>
+                                    :
+                                    <Pressable
+                                        onPress={() => {
+                                            setannonymous(true)
+                                        }}
+                                        style={{}}
+                                    >
+                                        <FontAwesomeIcon size={23} style={{
+                                            // flex: 1,
+                                            color: Colors.lightgrey,
+                                            // opacity: 0.8,
+                                            marginLeft: 10
+                                            // margin: 20,
+                                        }}
+                                            icon={faSquare} />
+                                    </Pressable>}
+
+
+                            </View>
+                        </View>
+
+
+                        <PrimaryButton
+                            loading={loading}
+                            style={{
+                                // width: "90%",
+                                marginLeft: "5%",
+                                marginTop: 40,
+                                textTransform: 'uppercase', marginBottom: 30
+
+                            }}
+                            callBack={() => {
+                                // alert("Payment made successfully")
+                                // setModalVisible(false)
+
+                                console.log("data")
+                                // handleSuccess()
+                                setToPay(true)
+
+
+
+                            }} title={`Make payment`} />
                     </View>
-
-
-                    <PrimaryButton
-                        loading={loading}
-                        style={{
-                            // width: "90%",
-                            marginLeft: "5%",
-                            marginTop: 40,
-                            textTransform: 'uppercase', marginBottom: 30
-
-                        }}
-                        callBack={() => {
-                            // alert("Payment made successfully")
-                            // setModalVisible(false)
-                            console.log("data")
-                            handleSuccess()
-                        }} title={`Make payment`} />
-                </View>
-
+                </>}
             </BottomSheet>
         </>
     )

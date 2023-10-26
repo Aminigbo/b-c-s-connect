@@ -14,9 +14,9 @@ import { Color } from '../../components/theme';
 import { CustomLogin, SaveMetadata, fetchMetadata, localstorageSaveUserMedata, signinService, signupService } from '../../controllers/auth/authController';
 import { Loader } from '../../components/loader';
 import { connect } from 'react-redux';
-import { FetchUserTime, surprise_state, user_state, Brethren, Connect_user } from '../../redux';
+import { FetchUserTime, surprise_state, user_state, Brethren, Connect_user, Scan_User, Authenticating_fellowship } from '../../redux';
 import { FetchGifts } from '../../controllers/items/itemsControllers';
-import { UserCard, UserCardSkeletom } from '../components/user-cards';
+import { UserCard } from '../components/user-cards';
 import FilterButton from '../../components/buttons/filterButton';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FetchAllUsers } from '../models';
@@ -27,14 +27,18 @@ import { FilterComponent } from '../components/filter-component';
 import { PrimaryButton } from '../../components/buttons/primary';
 import { BoldText1, BoldText2, BoldText3 } from '../../components/text';
 import { AllStates, Courses, Fellowships, SkillSets } from '../../utilities/data';
-
 // import RNPaystack from 'react-native-paystack'; 
 
 const Colors = Color()
 
 
-function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethren, route, disp_viewUser }) {
+function Search({ navigation, disp_user, appState, disp_fetchTime, disp_brethren, route, disp_viewUser, disp_scanned_user, disp_AuthFellowship }) {
     const [filter, setFilter] = useState(false)
+
+
+    const MeetingData = appState.AuthFellowship;
+    const Meetings = appState.Meetings;
+
     const [modalVisible, setModalVisible] = useState({
         status: false,
         type: ""
@@ -58,7 +62,6 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
     // render random users
     function RandomUsers() {
         let fetch = () => {
-            setLoading(true)
             FetchAllUsers()
                 .then(data => {
                     // console.log(data)
@@ -86,7 +89,7 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                 let rndUsers = Brethren.sort(() => 0.5 - Math.random()).slice(0, 30)
                 setLoading(false)
                 setTimeout(() => {
-                }, 1000);
+                }, 500);
                 setData({
                     ...data,
                     randomUsers: rndUsers
@@ -105,8 +108,46 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
 
     }
 
+    // If the purpose of the search is to authenticate user
+    function Verify(UserData) {
+        disp_scanned_user([UserData])
+        // =========================================
+        let filter = MeetingData.attendance_data.filter(e => e.phone == UserData.phone)
+        let findIndex = MeetingData.attendance_data.findIndex(e => e.phone == UserData.phone)
+        if (filter.length < 1) {
+            let UserAttData = {
+                name: UserData.name,
+                phone: UserData.phone,
+                id: UserData.id,
+                gender: UserData.meta.gender,
+            }
+            MeetingData.attendance_data.push(UserAttData)
+            let newData = {
+                ...MeetingData,
+                attendance: MeetingData.attendance + 1,
+            }
+            disp_AuthFellowship(newData)
+            Meetings.splice(findIndex, 1, newData)
+
+
+            // ===============================================
+            navigation.navigate("Verify-auht", { UserData });
+            console.log(UserData)
+        } else {
+            Alert.alert("Error", "Already authenticated", [{
+                text: "Got it",
+                onPress: () => {
+                    navigation.navigate("Verify-auht");
+                }
+            }])
+        }
+
+    }
+
+
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
+            console.log(route.params)
             RandomUsers()
             setFilter(false)
         });
@@ -331,45 +372,74 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                 flexDirection: "row",
                 justifyContent: "space-around",
                 // marginTop: 20,
-                backgroundColor: Colors.white,
+                // backgroundColor: Colors.white,
                 // backgroundColor: "green",
                 // marginBottom: 15,
                 position: 'absolute',
                 // top: 10,
-                // right: 19,
+                left: "5%",
                 zIndex: 2000,
-                width: "100%",
+                width: "90%",
                 // height: 50,
 
             }} >
-                <Pressable
-                    onPress={() => {
-                        // setModalVisible({
-                        //     status: true,
-                        //     type: "SEARCH"
-                        // })
-                        navigation.navigate("Search")
-                    }}
+
+                <TextInput
+                    autoFocus
+                    onFocus={() => { }}
+                    value={wordEntered}
+                    onChangeText={(value) => handleFilter(value)}
                     style={{
-                        // backgroundColor: "red",
-                        flex: 1,
-                        padding: 22
-                    }} >
-                    <Text style={{ color: Colors.dark }} >Search by name......</Text>
-                </Pressable>
+                        width: "100%",
+                        backgroundColor: Colors.light
+                    }}
+                    textColor={Colors.dark}
+                    theme={{
+                        colors: {
+                            primary: Colors.dark,
+                            background: 'white',
+                            placeholder: "red",
+                        },
+                        roundness: 8,
+                    }}
+                    mode="outlined"
+                    // multiline
+                    label="Type the name to search"
+                />
+                {/* <TextInput
+                    autoFocus
+                    onFocus={() => { }}
+                    value={wordEntered}
+                    onChangeText={(value) => handleFilter(value)}
+                    style={{
+                        width: "70%",
+                        backgroundColor: Colors.light
+                    }}
+                    textColor={Colors.dark}
+                    theme={{
+                        colors: {
+                            primary: Colors.dark,
+                            background: 'white',
+                            placeholder: "red",
+                        },
+                        // roundness: 8,
+                    }}
+                    mode="outlined"
+                    // multiline
+                    label="Type the name to search"
+                /> */}
 
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     onPress={() => {
-                        navigation.navigate("Filter")
-                        // setStateEntered("")
-                        // setenteredFellowship("")
-                        // setenteredSkill("")
-                        // setenteredCourses("")
-                        // setModalVisible({
-                        //     status: true,
-                        //     type: "FILTER"
-                        // })
+                        setStateEntered("")
+                        setenteredFellowship("")
+                        setenteredSkill("")
+                        setenteredCourses("")
+                        setModalVisible({
+                            status: true,
+                            type: "FILTER"
+                        })
                     }}
                     style={{
                         // backgroundColor: "blue",
@@ -377,6 +447,7 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                         padding: 12,
                         justifyContent: "flex-end",
                         alignItems: "flex-end",
+                        marginRight: 10,
 
                     }} >
                     <View style={{
@@ -397,7 +468,7 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                         }}
                             icon={faFilter} />
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
             </View >
 
@@ -405,24 +476,53 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                 loading == true ?
                     <>
                         <View style={{
-                            // justifyContent: "center",
-                            flex: 1,
-                            marginTop:80,
-                            // backgroundColor:"red"
-                            
+                            justifyContent: "center",
+                            flex: 1
                         }} >
-                            <UserCardSkeletom /> 
+                            <ActivityIndicator />
                         </View>
                     </>
                     :
                     <>
                         <SafeAreaView style={styles.container}>
-
                             <ScrollView>
+                                <View style={{ width: "100%", marginTop: 80 }}>
+
+
+                                    {filteredData.length != 0 && (
+                                        <View>
+                                            {filteredData.slice(0, 4).map((value, index) => {
+                                                return (
+                                                    <UserCard
+                                                        action={() => {
+                                                            if (route.params && route.params.type == "MEETING AUTH") {
+                                                                Verify(value)
+                                                                // =========
+
+                                                            } else {
+                                                                navigation.navigate("User-Profile", { value })
+                                                            }
+                                                        }}
+                                                        disp_viewUser={disp_viewUser}
+                                                        // setModalVisible={setModalVisible}
+                                                        data={value}
+                                                        Navigation={navigation}
+                                                        key={index}
+                                                        setWordEntered={setWordEntered}
+                                                        setFilteredData={setFilteredData}
+                                                    />
+                                                );
+                                            })}
+                                        </View>
+                                    )}
+
+
+                                </View>
                                 <View style={styles.content}>
 
+
                                     {
-                                        filter == true ? <>
+                                        filter == true && <>
                                             {
                                                 NewFilteredDataX.length < 1 ? <>
                                                     <View
@@ -441,16 +541,7 @@ function Connect({ navigation, disp_user, appState, disp_fetchTime, disp_brethre
                                                     )
                                                 })
 
-                                            }</> : data.randomUsers.map((e, index) => {
-                                                return (
-                                                    <UserCard
-                                                        action={() => {
-                                                            navigation.navigate("User-Profile", { e })
-                                                        }}
-                                                        disp_viewUser={disp_viewUser}
-                                                        data={e} Navigation={navigation} key={index} />
-                                                )
-                                            })
+                                            }</>
                                     }
 
                                 </View>
@@ -797,11 +888,15 @@ const mapDispatchToProps = (dispatch, encoded) => {
         disp_fetchTime: (payload) => dispatch(FetchUserTime(payload)),
         disp_brethren: (payload) => dispatch(Brethren(payload)),
         disp_viewUser: (payload) => dispatch(Connect_user(payload)), // when tap on any user, dispatch their data to state
+
+        // ==
+        disp_scanned_user: (payload) => dispatch(Scan_User(payload)),
+        disp_AuthFellowship: (payload) => dispatch(Authenticating_fellowship(payload)),
     };
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Connect);
+export default connect(mapStateToProps, mapDispatchToProps)(Search);
 
 
 

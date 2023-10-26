@@ -191,7 +191,7 @@ function ViewJob({ navigation, appState, route, disp_viewUser }) {
                             <View
                                 style={{
                                     width: "100%",
-                                    padding:12
+                                    padding: 12
                                 }}
                             >
                                 <View >
@@ -388,7 +388,7 @@ function ViewJob({ navigation, appState, route, disp_viewUser }) {
                                                                         setModalVisible={setModalVisible}
                                                                         // Navigation={navigation}
                                                                         action={() => {
-                                                                            navigation.navigate("User-Profile")
+                                                                            navigation.navigate("User-Profile", { JOB: true })
                                                                             console.log(e)
                                                                         }}
                                                                     />
@@ -423,7 +423,7 @@ function ViewJob({ navigation, appState, route, disp_viewUser }) {
                                                 <PrimaryButton
                                                     loading={loading}
                                                     style={{
-                                                        width: "100%", textTransform: 'uppercase', marginBottom: 10,
+                                                        width: "90%", textTransform: 'uppercase', marginBottom: 10,
                                                         marginVertical: 30
                                                     }}
                                                     callBack={() => { handleSnapPress(1) }} title={`Proceed to apply`} />
