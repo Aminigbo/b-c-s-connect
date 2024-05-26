@@ -99,7 +99,7 @@ function Events({ navigation, disp_user, appState, disp_surprise, route, disp_ev
             setPage(4)
             console.log(Events)
             if (Events.length < 1) {
-                console.log("Event is less ======================")
+                // console.log("Event is less ======================")
                 GetApp_Campaigns({
                     setLoading,
                     seterror,
@@ -438,15 +438,14 @@ function Events({ navigation, disp_user, appState, disp_surprise, route, disp_ev
                                                     // Campaigns.length > 0 && Campaigns.sort(() => 0.5 - Math.random()).map((e, index) => {
                                                     Events.length > 0 && Events.filter(e => e.meta.posterPhone == User.phone).map((e, index) => {
                                                         return (
-                                                            <>
-                                                                <DonationCard
-                                                                    data={e}
-                                                                    navigation={navigation}
-                                                                    key={index}
-                                                                    setdateToView={setdateToView}
-                                                                    setModalVisible={setModalVisible}
-                                                                />
-                                                            </>
+                                                            <DonationCard
+                                                                data={e}
+                                                                navigation={navigation}
+                                                                index={index}
+                                                                key={index}
+                                                                setdateToView={setdateToView}
+                                                                setModalVisible={setModalVisible}
+                                                            />
                                                         )
                                                     })
                                                 }

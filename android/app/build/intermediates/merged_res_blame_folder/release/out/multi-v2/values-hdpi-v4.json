@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.upendo.app-mergeReleaseResources-45:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/Users/aminigbo/.gradle/caches/transforms-3/e9090e0eba5ed2ba06f9d9b7f122124f/transformed/appcompat-1.4.2/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

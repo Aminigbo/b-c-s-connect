@@ -1,6 +1,8 @@
 import { supabase } from "../../config/supabase";
 import { API_Base_URL } from "../../utilities";
 
+// let API_Base_URL = "http://192.168.0.102:9090/api/v1/"
+
 export async function FetchAllDonations() {
     var requestOptions = {
         method: 'GET',

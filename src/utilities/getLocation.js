@@ -32,7 +32,7 @@ export const RequestLocationPermission = async ({
         (position) => {
             const { latitude, longitude } = position.coords;
             dispLocation({ latitude, longitude });
-            // console.log(`Accuracy: ${accuracy}`, position.coords)
+            console.log(`Accuracy: ${accuracy}`, position.coords)
             if (setLoading) { setLoading(false) }
             if (accuracy == false) {
                 HighAccuracy({ dispLocation })

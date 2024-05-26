@@ -5,7 +5,7 @@ import { Color } from "../../components/theme";
 export function NameDisplay({ user }) {
     let User = user;
     const Colors = Color()
-    if (User.meta.gender == "male") {
+    if (User.meta.gender == "male" || User.meta.gender == "MALE") {
         return (
             <>
                 Bro.
@@ -41,6 +41,7 @@ export function NameDisplay({ user }) {
         return (
             <>
                 Sis.
+                {/* {User.meta.gender} */}
                 {User.name.split(" ")[0] == "Bro" || User.name.split(" ")[0] == "Bro." ||
                     User.name.split(" ")[0] == "Brother" || User.name.split(" ")[0] == "Sis." ||
                     User.name.split(" ")[0] == "SIS" || User.name.split(" ")[0] == "Sis" ||

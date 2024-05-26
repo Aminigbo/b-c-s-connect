@@ -20,7 +20,7 @@ export const GetApp_Campaigns = ({
 }) => {
 
     if (setLoading) { setLoading(true) }
-    console.log("started fetching")
+    // console.log("started fetching")
     FetchAllDonations()
         .then(res => {
             if (setLoading) { setLoading(false) }

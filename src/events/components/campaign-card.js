@@ -18,12 +18,13 @@ export function DonationCard({
     setdateToView,
     Alert,
     AlertCallback,
-    user
+    user, index
 
 }) {
-
+    console.log(data)
     return (
         <Pressable
+            key={index}
 
             style={[styles.container, {
 
@@ -53,10 +54,6 @@ export function DonationCard({
                 </View>
 
                 <View style={{ flex: 5 }} >
-
-
-
-
 
                     <Pressable
                         onPress={() => {
@@ -139,7 +136,7 @@ export function DonationCard({
                             }}>
 
 
-                            <View style={{ aspectRatio: data.meta.Img.width / data.meta.Img.height, backgroundColor: "lightgrey",opacity:1 }}>
+                            <View style={{ aspectRatio: data.meta.Img.width / data.meta.Img.height, backgroundColor: "lightgrey", opacity: 1 }}>
 
                                 <Image
                                     style={[styles.imageBackground, {
@@ -148,7 +145,7 @@ export function DonationCard({
                                         aspectRatio: data.meta.Img.width / data.meta.Img.height,
                                         // marginTop: 10,
                                         borderRadius: 2,
-                                        zIndex:1000
+                                        zIndex: 1000
                                     }]}
                                     src={`${ImgBaseUrl}/${data.meta.Img.uri}`}
                                     resizeMode={'cover'} />

@@ -66,7 +66,7 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
     const Deltas = appState.Deltas;
     const [latLng, setLatLng] = useState(null);
     const [drawerState, setdrawerState] = useState(0)
-    const APIKEY = 'AIzaSyC2jZWqEdoJyi_0glJCZLOJ9NslccFwKI0'
+    const APIKEY = 'AIzaSyDGDhOLgQdo8GdMY7RtnXS0_sJ6GM14ipA'
     const GOOGLE_MAPS_APIKEY = APIKEY;
 
 
@@ -96,7 +96,7 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
 
     const handleRotateMap = (data) => {
         if (mapRef.current) {
-            console.log(mapRef.current.getCamera())
+            // console.log(mapRef.current.getCamera())
             mapRef.current.setCamera({
                 center: data,
                 heading: 120,
@@ -133,7 +133,7 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
             //     type: "Network error",
             //     status: true
             // })
-            console.error('Error fetching street address:', error);
+            // console.error('Error fetching street address:', error);
         }
     };
 
@@ -820,135 +820,156 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
                     <>
                         {
                             Driving == true && success.status == true &&
-                            <Alert w="100%" status="success" style={{ zIndex: 1000, position: "absolute", top: "10%" }}>
-                                <VStack space={2} flexShrink={1} w="100%">
-                                    <HStack flexShrink={1} space={1} alignItems="center" justifyContent="space-between">
-                                        <HStack space={2} flexShrink={1} alignItems="center">
-                                            <Alert.Icon />
-                                            <Text fontSize="md" fontWeight="medium" _dark={{
-                                                color: "coolGray.800"
-                                            }}>
-                                                Arrived successfully!
-                                            </Text>
+
+                            <>
+                                {/* <Alert w="100%" status="success" style={{ zIndex: 1000, position: "absolute", top: "10%" }}>
+                                    <VStack space={2} flexShrink={1} w="100%">
+                                        <HStack flexShrink={1} space={1} alignItems="center" justifyContent="space-between">
+                                            <HStack space={2} flexShrink={1} alignItems="center">
+                                                <Alert.Icon />
+                                                <Text fontSize="md" fontWeight="medium" _dark={{
+                                                    color: "coolGray.800"
+                                                }}>
+                                                    Arrived successfully!
+                                                </Text>
+                                            </HStack>
+                                            <IconButton variant="unstyled" _focus={{
+                                                borderWidth: 0
+                                            }} icon={<CloseIcon size="3" onPress={() => {
+                                                setSuccess({
+                                                    ...success,
+                                                    status: false
+                                                })
+                                            }} />} _icon={{
+                                                color: "coolGray.600"
+                                            }} />
                                         </HStack>
-                                        <IconButton variant="unstyled" _focus={{
-                                            borderWidth: 0
-                                        }} icon={<CloseIcon size="3" onPress={() => {
-                                            setSuccess({
-                                                ...success,
-                                                status: false
-                                            })
-                                        }} />} _icon={{
-                                            color: "coolGray.600"
-                                        }} />
-                                    </HStack>
-                                    <Box pl="6" _dark={{
-                                        _text: {
-                                            color: "coolGray.600"
-                                        }
-                                    }}>
-                                        You have arrived  your destination. Use the phone icon to place a call to either the bethel Admin, Priest or caretaker.
-                                    </Box>
-                                </VStack>
-                            </Alert>
+                                        <Box pl="6" _dark={{
+                                            _text: {
+                                                color: "coolGray.600"
+                                            }
+                                        }}>
+                                            You have arrived  your destination. Use the phone icon to place a call to either the bethel Admin, Priest or caretaker.
+                                        </Box>
+                                    </VStack>
+                                </Alert> */}
+                            </>
                         }
 
                         {myCurrentLocation &&
-                            <MapView
+                            <>
+                                <MapView
 
-                                // initial location view of the map
-                                region={
-                                    {
-                                        latitude: myCurrentLocation.latitude,
-                                        longitude: myCurrentLocation.longitude,
-                                        latitudeDelta: Deltas && Deltas.latitudeDelta,
-                                        longitudeDelta: Deltas && Deltas.longitudeDelta,
-                                        // latitudeDelta: 0.05,
-                                        // longitudeDelta: 0.05,
-                                        // heading: 90,
+                                    // initial location view of the map
+                                    region={
+                                        {
+                                            latitude: myCurrentLocation.latitude,
+                                            longitude: myCurrentLocation.longitude,
+                                            latitudeDelta: Deltas && Deltas.latitudeDelta,
+                                            longitudeDelta: Deltas && Deltas.longitudeDelta,
+
+                                            // latitude: 4.810676666666667,
+                                            // longitude: 7.069388333333334,
+                                            // latitudeDelta: 0.05,
+                                            // longitudeDelta: 0.05,
+                                            // heading: 90,
+                                        }
                                     }
-                                }
-                                ref={mapRef}
-                                style={{
-                                    // flex: 1,
-                                    // minHeight: 100,
-                                    height: "75%"
-                                }}
+                                    ref={mapRef}
+                                    style={{
+                                        // flex: 1,
+                                        // minHeight: 100,
+                                        height: "75%"
+                                    }}
 
-                            >
-
-
-                                {Enroute.status == null &&
-                                    <Circle
-                                        fillColor="rgba(135, 206, 235, 0.5)"
-                                        strokeColor='transparent'
-                                        center={myCurrentLocation} radius={6500}
-                                    />
-                                }
+                                >
 
 
-                                {/* draw direction only when the user have selected their destination bethel */}
-                                {Enroute.status == "ENROUTE" ?
-                                    <>
-                                        <MapViewDirections
-                                            origin={Enroute.location}
-                                            destination={Enroute.destination}
-                                            apikey={GOOGLE_MAPS_APIKEY}
-                                            strokeWidth={8}
-                                            strokeColor={Colors.primary}
-                                            optimizeWaypoints={true}
-                                            precision="high"
-                                            timePrecision="now"
-                                            onReady={result => {
-                                                setDrawerType("ENROUTE")
-                                                handleSnapPress(0)
-                                                setrouteLoading(false)
-                                                setRouteData({
-                                                    duration: result.distance,
-                                                    distance: result.duration,
-                                                })
+                                    {Enroute.status == null &&
+                                        <Circle
+                                            fillColor="rgba(135, 206, 235, 0.5)"
+                                            strokeColor='transparent'
+                                            center={myCurrentLocation} radius={6500}
+                                        />
+                                    }
 
 
-                                                let Aminate = () => {
-                                                    mapRef.current.animateToRegion(
-                                                        {
-                                                            ...Enroute.destination, latitudeDelta: 0.00421,
-                                                            longitudeDelta: 0.00421,
-                                                        }, 2000);
+                                    {/* draw direction only when the user have selected their destination bethel */}
+                                    {Enroute.status == "ENROUTE" ?
+                                        <>
+                                            <MapViewDirections
+                                                origin={Enroute.location}
+                                                destination={Enroute.destination}
+                                                apikey={GOOGLE_MAPS_APIKEY}
+                                                strokeWidth={5}
+                                                strokeColor={Colors.primary}
+                                                optimizeWaypoints={true}
+                                                precision="high"
+                                                timePrecision="now"
+                                                onReady={result => {
+                                                    setDrawerType("ENROUTE")
+                                                    handleSnapPress(0)
+                                                    setrouteLoading(false)
+                                                    setRouteData({
+                                                        duration: result.distance,
+                                                        distance: result.duration,
+                                                    })
 
-                                                    setTimeout(() => {
+
+                                                    let Aminate = () => {
                                                         mapRef.current.animateToRegion(
                                                             {
-                                                                ...Enroute.location, latitudeDelta: 0.0099,
+                                                                ...Enroute.destination, latitudeDelta: 0.00421,
+                                                                longitudeDelta: 0.00421,
+                                                            }, 2000);
+
+                                                        setTimeout(() => {
+                                                            mapRef.current.animateToRegion(
+                                                                {
+                                                                    ...Enroute.location, latitudeDelta: 0.0099,
+                                                                    longitudeDelta: 0.0099,
+                                                                }, 4000);
+                                                            setDriving(true)
+                                                        }, 3000);
+
+                                                        setTimeout(() => {
+                                                            disp_deltas({
+                                                                latitudeDelta: 0.0099,
                                                                 longitudeDelta: 0.0099,
-                                                            }, 4000);
-                                                        setDriving(true)
-                                                    }, 3000);
-
-                                                    setTimeout(() => {
-                                                        disp_deltas({
-                                                            latitudeDelta: 0.0099,
-                                                            longitudeDelta: 0.0099,
-                                                        })
-                                                        WatchLocationChange()
-                                                    }, 10000);
+                                                            })
+                                                            WatchLocationChange()
+                                                        }, 10000);
 
 
-                                                }
-                                                if (Driving == false) {
-                                                    Aminate()
-                                                }
-                                            }}
-                                        />
+                                                    }
+                                                    if (Driving == false) {
+                                                        Aminate()
+                                                    }
+                                                }}
+                                            />
 
-                                        <Circle
-                                            fillColor="rgba(218, 26, 97, 0.3)"
-                                            strokeColor='transparent'
-                                            center={{
-                                                latitude: myCurrentLocation.latitude,
-                                                longitude: myCurrentLocation.longitude,
-                                            }} radius={60}
-                                        />
+                                            <Circle
+                                                fillColor="rgba(218, 26, 97, 0.3)"
+                                                strokeColor='transparent'
+                                                center={{
+                                                    latitude: myCurrentLocation.latitude,
+                                                    longitude: myCurrentLocation.longitude,
+                                                }} radius={60}
+                                            />
+                                            < Marker
+                                                coordinate={{
+                                                    latitude: myCurrentLocation.latitude,
+                                                    longitude: myCurrentLocation.longitude,
+                                                }}
+                                                title={`Info`}
+                                                description={`Your current location`}
+                                            >
+                                                <UserMarker />
+                                            </Marker>
+
+
+                                        </> :
+
                                         < Marker
                                             coordinate={{
                                                 latitude: myCurrentLocation.latitude,
@@ -959,55 +980,42 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
                                         >
                                             <UserMarker />
                                         </Marker>
-
-
-                                    </> :
-
-                                    < Marker
-                                        coordinate={{
-                                            latitude: myCurrentLocation.latitude,
-                                            longitude: myCurrentLocation.longitude,
-                                        }}
-                                        title={`Info`}
-                                        description={`Your current location`}
-                                    >
-                                        <UserMarker />
-                                    </Marker>
-                                }
+                                    }
 
 
 
-                                {/* marker showing bethels */}
-                                {Bethels && Bethels.length > 0 && Bethels.map((marker, index) => (
-                                    <Marker.Animated
-                                        key={index}
-                                        // ref={markerRef}
-                                        // draggable
-                                        coordinate={marker.metadata.data}
-                                        // title={`View Detail`}
-                                        description={`Click the Icon to see details.`}
-                                        onPress={(e) => {
-                                            // setdrawRoute(false)
-                                            let coord = e.nativeEvent.coordinate
-                                            // console.log(mapRef.current.animateToRegion)
+                                    {/* marker showing bethels */}
+                                    {Bethels && Bethels.length > 0 && Bethels.map((marker, index) => (
+                                        <Marker.Animated
+                                            key={index}
+                                            // ref={markerRef}
+                                            // draggable
+                                            coordinate={marker.metadata.data}
+                                            // title={`View Detail`}
+                                            description={`Click the Icon to see details.`}
+                                            onPress={(e) => {
+                                                // setdrawRoute(false)
+                                                let coord = e.nativeEvent.coordinate
+                                                // console.log(mapRef.current.animateToRegion)
 
-                                            // console.log(coord)
-                                            setTimeout(() => {
-                                                handleSnapPress(1)
-                                                // 
-                                                // setDrawerType("SELECTED BETHEL")
-                                            }, 500);
-                                            saveBethelToState({ lat: coord.latitude, lng: coord.longitude })
+                                                // console.log(coord)
+                                                setTimeout(() => {
+                                                    handleSnapPress(1)
+                                                    // 
+                                                    // setDrawerType("SELECTED BETHEL")
+                                                }, 500);
+                                                saveBethelToState({ lat: coord.latitude, lng: coord.longitude })
 
-                                        }}
-                                    >
-                                        <CustomMarker />
-                                    </Marker.Animated>
-                                ))}
+                                            }}
+                                        >
+                                            <CustomMarker />
+                                        </Marker.Animated>
+                                    ))}
 
 
 
-                            </MapView>
+                                </MapView>
+                            </>
                         }
 
 
@@ -1142,7 +1150,7 @@ function Add_details({ navigation, disp_deltas, appState, dispLocation, disp_Log
                                                 {filteredData.length != 0 ? (
                                                     <View>
                                                         {filteredData.slice(0, 4).map((value, index) => {
-                                                            console.log(value.metadata.data.latitude)
+                                                            // console.log(value.metadata.data.latitude)
                                                             return (
                                                                 <Pressable key={index} style={{
                                                                     backgroundColor: Colors.light,

@@ -276,7 +276,9 @@ function Signup({ navigation, disp_Login, appState, disp_Fellowship, route }) {
                     showHideTransition={statusBarTransition}
                     hidden={hidden}
                 />
-                <ScrollView  >
+                <ScrollView style={{
+                    padding:15
+                }}  >
                     <View style={{  }} >
                         <Pressable
                             onPress={() => {
@@ -556,7 +558,7 @@ const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: 'center',
         // alignItems: 'center',
-        padding: 20,
+        // padding: 20,
         // backgroundColor:"red", 
     },
     input: {
